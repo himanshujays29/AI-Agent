@@ -20,6 +20,7 @@ const form = document.getElementById("studyForm");
       });
 
       const data = await res.json();
+      
       if (!data.success) {
         statusDiv.innerHTML = "❌ Error: " + data.error;
         return;

@@ -4,8 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Exam Prep Dashboard</title>
-  <link rel="stylesheet" href="/js/main.js">
+  <link rel="stylesheet" href="/css/style.css">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.css"
+    />
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body class="bg-gray-100">
@@ -28,7 +32,7 @@
 
     <div id="status" class="my-4 text-gray-700"></div>
 
-    <div id="output" class="hidden">
+    <div id="output" class="hidden markdown-body">
       <div class="bg-white p-4 rounded-lg shadow mb-6">
         <h2 class="text-2xl font-semibold mb-2">🔍 Research</h2>
         <div id="research" class="prose"></div>

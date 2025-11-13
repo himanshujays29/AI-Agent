@@ -37,10 +37,9 @@ Output in Markdown.
   );
 
   const data = await response.json();
-  // console.log("Research Agent Response:", data);
+  console.log(data);
 
 const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response text found.";
-    console.log("Extracted Text:", text);
 
   return text;
 }

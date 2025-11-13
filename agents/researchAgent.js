@@ -20,15 +20,15 @@ export async function researchAgent(topic, model = "gemini-2.5-flash") {
           {
             parts: [
               {
-                text: `
-Research the topic: "${topic}".
-Include:
-- Definition
-- Explanation with examples
-- Real-world usage (if coding-related)
-Format the response in Markdown.
-
-`
+                text: `Explain the topic "${topic}" in a well-formatted way using:
+- Headings
+- Subheadings
+- Bullet points
+- Definitions
+- Examples
+- Code snippets (if relevant)
+                  
+Make it easy for exam preparation.`
               },
             ],
           },
@@ -38,10 +38,9 @@ Format the response in Markdown.
   );
 
   const data = await response.json();
-  // console.log("Research Agent Response:", data);
+  console.log(data);
 
 const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response text found.";
-    console.log("Extracted Text:", text);
 
   return text;
 }

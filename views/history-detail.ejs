@@ -1,5 +1,20 @@
 <!-- history-detail.ejs -->
-<div class="max-w-3xl mx-auto py-10">
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exam Prep Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.css"
+    />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-gray-100">
+<div class="max-w-3xl mx-auto py-10 markdown-body">
   <a href="/history" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-6 inline-block">⬅ Back to History</a>
   <h1 class="text-3xl font-bold mb-4"><%= record.topic %></h1>
   <p class="text-sm text-gray-500 mb-6"><%= record.createdAt.toDateString() %></p>
@@ -14,3 +29,5 @@
     <div class="prose"><%- marked.parse(record.summary) %></div>
   </div>
 </div>
+</body>
+</html>
