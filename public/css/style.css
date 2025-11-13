@@ -1,0 +1,14 @@
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.prose h2 {
+  color: #1d4ed8;
+  margin-top: 1rem;
+}
+
+.prose pre {
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exam Prep Dashboard</title>
+  <link rel="stylesheet" href="/js/main.js">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-gray-100">
+
+  <div class="max-w-5xl mx-auto py-10">
+    <h1 class="text-3xl font-bold text-center mb-8">📚 Exam Preparation Dashboard</h1>
+
+    <form id="studyForm" class="bg-white shadow p-6 rounded-lg">
+      <label class="block mb-2 text-lg">Select Model:</label>
+      <select id="model" class="border border-gray-300 rounded-lg px-3 py-2 w-full mb-4">
+        <option value="gemini-2.5-flash-lite" selected>Gemini 2.5 Flash Lite (Fast) </option>
+        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Detailed)</option>
+      </select>
+
+      <input id="topic" placeholder="Enter topic e.g. HTML, CSS, Databases"
+        class="border border-gray-300 rounded-lg px-3 py-2 w-full mb-4" />
+
+      <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Start Study</button>
+    </form>
+
+    <div id="status" class="my-4 text-gray-700"></div>
+
+    <div id="output" class="hidden">
+      <div class="bg-white p-4 rounded-lg shadow mb-6">
+        <h2 class="text-2xl font-semibold mb-2">🔍 Research</h2>
+        <div id="research" class="prose"></div>
+      </div>
+
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="text-2xl font-semibold mb-2">🧠 Summary</h2>
+        <div id="summary" class="prose"></div>
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-semibold mt-10 mb-3">📜 History</h2>
+    <p><a href="/history">View all</a></p>
+    <ul class="bg-white rounded-lg shadow divide-y divide-gray-200">
+      <% history.forEach(h => { %>
+        <li class="p-4">
+          <strong><%= h.topic %></strong>
+          <p class="text-sm text-gray-600"><%= h.createdAt.toDateString() %></p>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+  <script src="/js/main.js"></script>
+</body>
+</html>
