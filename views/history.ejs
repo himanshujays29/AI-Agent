@@ -1,39 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>History - Exam Prep Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-</head>
-<body class="bg-gray-100">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>History - Exam Prep Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="bg-gray-100">
+    <div class="max-w-5xl mx-auto py-10">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">📜 Study History</h1>
+        <a
+          href="/"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        >
+          ⬅ Back to Dashboard
+        </a>
+      </div>
 
-  <div class="max-w-5xl mx-auto py-10">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">📜 Study History</h1>
-      <a href="/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-        ⬅ Back to Dashboard
-      </a>
-    </div>
-
-    <% if (records.length === 0) { %>
+      <% if (records.length === 0) { %>
       <p class="text-gray-500 text-center">No study records found yet.</p>
-    <% } else { %>
+      <% } else { %>
       <ul class="bg-white rounded-lg shadow divide-y divide-gray-200">
         <% records.forEach(r => { %>
-          <li class="p-4 hover:bg-gray-50 transition">
-            <div class="flex justify-between items-center">
-              <div>
-                <h2 class="text-xl font-semibold"><%= r.topic %></h2>
-                <p class="text-sm text-gray-500"><%= r.createdAt.toDateString() %></p>
-              </div>
-              <a href="/history/<%= r._id %>" class="text-blue-600 hover:underline">View</a>
+        <li class="p-4 hover:bg-gray-50 transition">
+          <div class="flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-semibold"><%= r.topic %></h2>
+              <p class="text-sm text-gray-500">
+                <%= r.createdAt.toDateString() %>
+              </p>
             </div>
-          </li>
+            <a
+              href="/history/<%= r._id %>"
+              class="text-blue-600 hover:underline"
+              >View</a
+            >
+            <form
+              action="/history/delete/<%= r._id %>"
+              method="POST"
+              style="display: inline"
+            >
+              <button class="delete-btn">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </li>
         <% }) %>
       </ul>
-    <% } %>
-  </div>
-</body>
+      <% } %>
+    </div>
+  </body>
 </html>

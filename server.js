@@ -1,5 +1,5 @@
 import express from "express";
-import {marked} from "marked";
+import { marked } from "marked";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
@@ -7,7 +7,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import apiRoutes from "./routes/api.js";
 import History from "./models/History.js";
-
 
 dotenv.config();
 const app = express();
@@ -30,8 +29,6 @@ mongoose
 // Routes
 app.use("/api", apiRoutes);
 
-
-
 // All history
 app.get("/history", async (req, res) => {
   const records = await History.find().sort({ createdAt: -1 });
@@ -51,5 +48,12 @@ app.get("/", async (req, res) => {
   res.render("index", { history });
 });
 
+app.post("/history/delete/:id", async (req, res) => {
+  await History.findByIdAndDelete(req.params.id);
+  res.redirect("/");
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running at http://localhost:${PORT}`)
+);

@@ -5,8 +5,12 @@ const historySchema = new mongoose.Schema(
     topic: String,
     research: String,
     summary: String,
+    quiz: { type: String, default: "" }
   },
   { timestamps: true }
 );
 
 export default mongoose.model("History", historySchema);
+
+
+
