@@ -52,6 +52,7 @@ Output the quiz in **clean Markdown**, using:
   );
 
   const data = await response.json();
+  console.log(data)
   const text =
     data?.candidates?.[0]?.content?.parts?.[0]?.text ||
     "Unable to generate quiz.";

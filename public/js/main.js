@@ -15,53 +15,73 @@ form.addEventListener("submit", async (e) => {
   statusDiv.innerHTML = "⏳ Researching...";
   output.classList.add("hidden");
 
-  // Show quiz button
-  const quizBtn = document.getElementById("generateQuizBtn");
-  quizBtn.classList.remove("hidden");
+  try {
+    const res = await fetch("/api/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic, model }),
+    });
 
-  // Attach click
-  quizBtn.onclick = async () => {
-    quizBtn.innerText = "⏳ Generating quiz...";
-    const resQuiz = await fetch(`/api/quiz/${data.id}`);
-    const quizData = await resQuiz.json();
+    console.log("Response status:", res.status);
+    const data = await res.json();
+    console.log("Response data:", data);
 
-    if (!quizData.success) {
-      alert("Error generating quiz");
+    if (!data.success) {
+      statusDiv.innerHTML = "❌ Error: " + (data.error || "Unknown error");
       return;
     }
 
-    quizBtn.innerText = "🎯 Generate Quiz Again";
+    statusDiv.innerHTML = data.steps.join("<br>");
+    researchDiv.innerHTML = marked.parse(data.research);
+    summaryDiv.innerHTML = marked.parse(data.summary);
+    output.classList.remove("hidden");
 
-    document.getElementById("quizOutput").innerHTML = marked.parse(
-      quizData.quiz
-    );
-    document.getElementById("quizOutput").classList.remove("hidden");
-  };
+    // Show quiz button
+    const quizBtn = document.getElementById("generateQuizBtn");
+    quizBtn.classList.remove("hidden");
 
-  // Show PDF button
-const pdfBtn = document.getElementById("exportPdfBtn");
-pdfBtn.classList.remove("hidden");
+    // Attach click
+    quizBtn.onclick = async () => {
+      quizBtn.innerText = "⏳ Generating quiz...";
+      const resQuiz = await fetch(`/api/quiz/${data.id}`);
+      const quizData = await resQuiz.json();
 
-pdfBtn.onclick = () => {
-  window.location.href = `/api/pdf/${data.id}`;
-};
+      if (!quizData.success) {
+        alert("Error generating quiz");
+        return;
+      }
 
+      quizBtn.innerText = "🎯 Generate Quiz Again";
+      document.getElementById("quizOutput").innerHTML = marked.parse(
+        quizData.quiz
+      );
+      document.getElementById("quizOutput").classList.remove("hidden");
+    };
 
-  const res = await fetch("/api/run", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ topic, model }),
-  });
+    // Show PDF button
+    const pdfBtn = document.getElementById("exportPdfBtn");
+    pdfBtn.classList.remove("hidden");
 
+    pdfBtn.onclick = () => {
+      window.location.href = `/api/pdf/${data.id}`;
+    };
+
+  } catch (error) {
+    console.error("Fetch error:", error);
+    statusDiv.innerHTML = "❌ Network error: " + error.message;
+  }
+});
+
+// For history detail page
+document.getElementById("generateQuizHistory").onclick = async () => {
+  const btn = document.getElementById("generateQuizHistory");
+  btn.innerText = "⏳ Generating quiz...";
+
+  const res = await fetch(`/api/quiz/<%= record._id %>`);
   const data = await res.json();
 
-  if (!data.success) {
-    statusDiv.innerHTML = "❌ Error: " + data.error;
-    return;
-  }
+  btn.innerText = "🎯 Regenerate Quiz";
 
-  statusDiv.innerHTML = data.steps.join("<br>");
-  researchDiv.innerHTML = marked.parse(data.research);
-  summaryDiv.innerHTML = marked.parse(data.summary);
-  output.classList.remove("hidden");
-});
+  document.getElementById("quizBox").innerHTML = marked.parse(data.quiz);
+  document.getElementById("quizBox").classList.remove("hidden");
+};

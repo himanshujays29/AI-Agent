@@ -1,4 +1,3 @@
-// ...existing code...
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 dotenv.config();
@@ -38,10 +37,8 @@ Make it easy for exam preparation.`
   );
 
   const data = await response.json();
-  console.log(data);
-
+    console.log(data);
 const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response text found.";
-
   return text;
 }
 // ...existing code...

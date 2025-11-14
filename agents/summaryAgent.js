@@ -1,4 +1,3 @@
-// ...existing code...
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 dotenv.config();
@@ -36,11 +35,8 @@ Output in Markdown.
     }
   );
 
-  const data = await response.json();
-  console.log(data);
-
+const data = await response.json();
+console.log(data);
 const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response text found.";
-
-  return text;
+return text;
 }
-// ...existing code...

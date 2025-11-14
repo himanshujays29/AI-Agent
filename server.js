@@ -1,12 +1,15 @@
+
 import express from "express";
-import { marked } from "marked";
 import mongoose from "mongoose";
+import ejsMate from "ejs-mate";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import path from "path";
 import { fileURLToPath } from "url";
-import apiRoutes from "./routes/api.js";
+import historyRoutes from "./routes/history.js";
 import History from "./models/History.js";
+import apiRoutes from "./routes/api.js";
+
 
 dotenv.config();
 const app = express();
@@ -17,8 +20,14 @@ const __dirname = path.dirname(__filename);
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+app.engine("ejs", ejsMate);
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use((req, res, next) => {
+  res.locals.redirectUrl = req.get("referer") || "/";
+  next();
+});
 
 // MongoDB connection
 mongoose
@@ -28,29 +37,12 @@ mongoose
 
 // Routes
 app.use("/api", apiRoutes);
-
-// All history
-app.get("/history", async (req, res) => {
-  const records = await History.find().sort({ createdAt: -1 });
-  res.render("history.ejs", { records });
-});
-
-// Single record
-app.get("/history/:id", async (req, res) => {
-  const record = await History.findById(req.params.id);
-  if (!record) return res.status(404).send("Not found");
-  res.render("history-detail.ejs", { record, marked }); // Pass marked here
-});
+app.use("/history", historyRoutes);
 
 // Homepage
 app.get("/", async (req, res) => {
   const history = await History.find().sort({ createdAt: -1 });
-  res.render("index", { history });
-});
-
-app.post("/history/delete/:id", async (req, res) => {
-  await History.findByIdAndDelete(req.params.id);
-  res.redirect("/");
+  res.render("main/index.ejs", { history });
 });
 
 const PORT = process.env.PORT || 3000;
