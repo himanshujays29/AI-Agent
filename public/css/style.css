@@ -1,5 +1,5 @@
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .prose h2 {
@@ -13,12 +13,12 @@ body {
   border-radius: 0.5rem;
 }
 
-  h1 {
-        text-align: center;
-        color: #2563eb;
-      }
+h1 {
+  text-align: center;
+  color: #2563eb;
+}
 
-      .delete-btn i,
+.delete-btn i,
 .delete-all-btn i,
 .delete-detail-btn i {
   color: #ff3333; /* Bright red trash icons */
@@ -55,4 +55,39 @@ body {
 
 .delete-detail-btn i {
   color: white;
+}
+
+.regen-btn {
+  background: #007bff;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+.regen-btn i {
+  margin-right: 6px;
+}
+
+.model-dropdown {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  margin-top: 5px;
+}
+
+.model-dropdown-small {
+  padding: 4px;
+  border-radius: 5px;
+  margin-right: 6px;
+}
+.regen-list-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #007bff;
+  font-size: 16px;
 }

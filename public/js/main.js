@@ -4,6 +4,8 @@ const output = document.getElementById("output");
 const researchDiv = document.getElementById("research");
 const summaryDiv = document.getElementById("summary");
 const quizBtn = document.getElementById("generateQuizBtn");
+const regentn = document.getElementById("regen-btn");
+
 quizBtn.classList.remove("hidden");
 
 form.addEventListener("submit", async (e) => {
@@ -65,7 +67,6 @@ form.addEventListener("submit", async (e) => {
     pdfBtn.onclick = () => {
       window.location.href = `/api/pdf/${data.id}`;
     };
-
   } catch (error) {
     console.error("Fetch error:", error);
     statusDiv.innerHTML = "❌ Network error: " + error.message;
@@ -85,3 +86,68 @@ document.getElementById("generateQuizHistory").onclick = async () => {
   document.getElementById("quizBox").innerHTML = marked.parse(data.quiz);
   document.getElementById("quizBox").classList.remove("hidden");
 };
+
+async function regenerateNotes(id) {
+  const loader = document.getElementById("regenLoader");
+  const loaderText = document.getElementById("regenLoaderText");
+  loader.style.display = "block";
+
+  const model = document.getElementById("regenModelSelect").value;
+
+  const response = await fetch(`/history/regenerate/${id}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model }),
+  });
+
+  const data = await response.json();
+  loaderText.innerText = "Notes regenerated successfully!";
+
+  if (data.success) {
+    location.reload();
+  } else {
+    loaderText.innerText = "Error: " + (data.error || "Unknown error");
+  }
+}
+
+function regenFromList(recordId) {
+  const spinner = document.getElementById(`spinner-${recordId}`);
+  const rotateIcon = document.querySelector(
+    `button[onclick="regenFromList('${recordId}')"] .fa-rotate-right`
+  );
+  const button = document.querySelector(
+    `button[onclick="regenFromList('${recordId}')"]`
+  );
+  const dropdown = document.getElementById(`model-${recordId}`);
+
+  // Hide rotate icon and show spinner
+  rotateIcon.style.display = "none";
+  spinner.style.display = "block";
+  button.disabled = true;
+
+  const selectedModel = dropdown.value;
+
+  fetch(`/history/regenerate/${recordId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: selectedModel }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Notes regenerated successfully!");
+      } else {
+        alert("Error: " + data.error);
+      }
+    })
+    .catch((err) => {
+      console.error("Error:", err);
+      alert("Failed to regenerate notes");
+    })
+    .finally(() => {
+      // Show rotate icon and hide spinner
+      rotateIcon.style.display = "inline";
+      spinner.style.display = "none";
+      button.disabled = false;
+    });
+}

@@ -1,45 +1,67 @@
 <% layout('/layout/layout') -%>
-    <div class="max-w-5xl mx-auto py-10">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">📜 Study History</h1>
-        <a
-          href="/"
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          ⬅ Back to Dashboard
-        </a>
-      </div>
+<div class="max-w-5xl mx-auto py-10">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">📜 Study History</h1>
+    <a
+      href="/"
+      class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+    >
+      ⬅ Back to Dashboard
+    </a>
+  </div>
 
-      <% if (records.length === 0) { %>
-      <p class="text-gray-500 text-center">No study records found yet.</p>
-      <% } else { %>
-      <ul class="bg-white rounded-lg shadow divide-y divide-gray-200">
-        <% records.forEach(r => { %>
-        <li class="p-4 hover:bg-gray-50 transition">
-          <div class="flex justify-between items-center">
-            <div>
-              <h2 class="text-xl font-semibold"><%= r.topic %></h2>
-              <p class="text-sm text-gray-500">
-                <%= r.createdAt.toDateString() %>
-              </p>
-            </div>
-            <a
-              href="/history/<%= r._id %>"
-              class="text-blue-600 hover:underline"
-              >View</a
-            >
-            <form
-              action="/history/delete/<%= r._id %>"
-              method="POST"
-              style="display: inline"
-            >
-              <button class="delete-btn">
-                <i class="fas fa-trash"></i>
-              </button>
-            </form>
-          </div>
-        </li>
-        <% }) %>
-      </ul>
-      <% } %>
-    </div>
+  <% if (records.length === 0) { %>
+  <p class="text-gray-500 text-center">No study records found yet.</p>
+  <% } else { %>
+  <ul class="bg-white rounded-lg shadow divide-y divide-gray-200">
+    <% records.forEach(r => { %>
+    <li class="p-4 hover:bg-gray-50 transition">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-semibold"><%= r.topic %></h2>
+          <p class="text-sm text-gray-500"><%= r.createdAt.toDateString() %></p>
+        </div>
+        <a href="/history/<%= r._id %>" class="text-blue-600 hover:underline"
+          >View</a
+        >
+
+        <form
+          action="/history/regenerate/<%= r._id %>"
+          method="POST"
+          style="display: inline"
+        >
+          <select class="model-dropdown-small" id="model-<%= r._id %>">
+            <option value="gemini-2.5-flash-lite">
+              Gemini-2.5-Flash-Lite (Best)
+            </option>
+            <option value="gemini-2.5-flash">Gemini-2.5-Flash</option>
+          </select>
+
+          <button
+            class="regen-list-btn"
+            type="button"
+            onclick="regenFromList('<%= r._id %>')"
+          >
+            <i class="fa-solid fa-rotate-right"></i>
+            <i
+              class="fa-solid fa-spinner fa-spin"
+              id="spinner-<%= r._id %>"
+              style="font-size: 24px; color: #007bff; display: none"
+            ></i>
+          </button>
+        </form>
+        <form
+          action="/history/delete/<%= r._id %>"
+          method="POST"
+          style="display: inline"
+        >
+          <button class="delete-btn">
+            <i class="fas fa-trash"></i>
+          </button>
+        </form>
+      </div>
+    </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</div>

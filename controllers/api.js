@@ -86,3 +86,40 @@ export const exportHistory = async (req, res) => {
 
   doc.end();
 };
+
+export const regenerateNotes = async (req, res) => {
+  try {
+    const record = await History.findById(req.params.id);
+    if (!record) {
+      return res.status(404).json({ error: "Record not found" });
+    }
+
+    const selectedModel = req.body.model || "gemini-2.5-flash-lite";
+
+    const steps = [];
+    const pushProgress = (msg) => steps.push(msg);
+
+    const { research, summary } = await runExamWorkflow(
+      record.topic,
+      pushProgress,
+      selectedModel
+    );
+
+    record.research = research;
+    record.summary = summary;
+    record.updatedAt = new Date();
+    await record.save();
+
+    res.json({
+      success: true,
+      message: "Notes regenerated successfully",
+      steps,
+      research,
+      summary,
+      id: record._id,
+    });
+  } catch (err) {
+    console.error("Regenerate Error:", err);
+    res.status(500).json({ error: "Failed to regenerate notes" });
+  }
+};
