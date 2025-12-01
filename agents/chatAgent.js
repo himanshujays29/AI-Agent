@@ -1,0 +1,65 @@
+
+import fetch from "node-fetch";
+import dotenv from "dotenv";
+dotenv.config();
+
+/**
+ * Executes a conversational turn using the specified model and chat history.
+ * @param {string} topic The original topic for context.
+ * @param {Array<{role: string, text: string}>} chatHistory Previous conversation messages.
+ * @param {string} userMessage The new message from the user.
+ * @param {string} model The LLM model to use.
+ * @returns {Promise<string>} The LLM's text response.
+ */
+export async function chatAgent(
+  topic,
+  chatHistory,
+  userMessage,
+  model = "gemini-2.5-flash"
+) {
+  const API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!API_KEY) throw new Error("Missing API key");
+
+  // Construct the conversation history for the API payload
+  const contents = chatHistory.map((msg) => ({
+    role: msg.role === "user" ? "user" : "model",
+    parts: [{ text: msg.text }],
+  }));
+
+  // Add the current user message
+  contents.push({
+    role: "user",
+    parts: [{ text: userMessage }],
+  });
+
+  const systemInstruction = `You are a helpful and knowledgeable AI Study Tutor specializing in the topic: "${topic}".
+  Answer the user's questions clearly, concisely, and accurately based on the established topic.
+  Keep your responses in clean Markdown format.`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": API_KEY,
+      },
+      body: JSON.stringify({
+        contents: contents,
+        systemInstruction: {
+          parts: [{ text: systemInstruction }],
+        },
+        tools: [{ google_search: {} }],
+      }),
+    }
+  );
+
+  const data = await response.json();
+  console.log(data);
+
+  const text =
+    data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+    "Sorry, I couldn't process that request.";
+
+  return text;
+}
