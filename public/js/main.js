@@ -102,31 +102,36 @@ if (form) {
       if (diagramBtn) {
         diagramBtn.classList.remove("hidden");
         diagramBtn.onclick = async () => {
-          diagramBtn.innerText = "⏳ Generating Mind Map...";
-          const resD = await fetch(`/api/diagram/${data.id}`);
-          const dData = await resD.json();
+          const btn = diagramBtn;
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+          btn.disabled = true;
 
-          if (!dData.success) {
-            diagramBtn.innerText = "⚠ Error";
-            return;
+          try {
+            const res = await fetch(`/api/diagram/${data.id}`);
+            const resData = await res.json();
+            if (resData.success) {
+              btn.innerText = "🧠 Regenerate Mind Map";
+              const wrapper = document.getElementById("diagramWrapper");
+              const diagram = document.getElementById("mindmapDiagram");
+              diagram.textContent = resData.diagram;
+              wrapper.classList.remove("hidden");
+              mermaid.init(undefined, ".mermaid");
+              initMindmapControls();
+            } else {
+              alert("Error generating diagram");
+            }
+          } catch (e) {
+            console.error(e);
+            alert("Network Error");
+          } finally {
+            btn.disabled = false;
           }
-
-          diagramBtn.innerText = "🧠 Regenerate Mind Map";
-          const wrapper = document.getElementById("diagramWrapper");
-          const diagram = document.getElementById("mindmapDiagram");
-
-          if (diagram) {
-            diagram.textContent = dData.diagram;
-          }
-          wrapper.classList.remove("hidden");
-
-          mermaid.init(undefined, ".mermaid");
-          initMindmapControls();
         };
       }
-    } catch (error) {
-      console.error("Fetch error:", error);
-      statusDiv.innerHTML = "❌ Network error: " + error.message;
+    }catch (error) {
+      console.error("Form submission error:", error);
+      statusDiv.innerHTML = "❌ Error: " + error.message;
     }
   });
 }

@@ -221,18 +221,24 @@ export const generateFlashcards = async (req, res) => {
 };
 
 export const generateDiagram = async (req, res) => {
-  const record = await History.findOne({
-    _id: req.params.id,
-    owner: req.user._id,
-  });
+  const record = await History.findById(req.params.id);
   if (!record) return res.status(404).json({ error: "Record not found" });
+  
+  // Security Check
+  if (!record.owner.equals(req.user._id)) {
+    return res.status(403).json({ error: "Unauthorized access to this record" });
+  }
 
-  const diagram = await diagramAgent(record.topic, record.model);
-  record.diagram = diagram;
-  await record.save();
-
-  res.json({ success: true, diagram });
+  try {
+    const diagramCode = await diagramAgent(record.topic, record.model);
+    record.diagram = diagramCode;
+    await record.save();
+    res.json({ success: true, diagram: diagramCode });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 };
+
 
 /**
  * Sidebar helper: list history items for current user

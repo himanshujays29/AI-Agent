@@ -4,10 +4,10 @@ import ejsMate from "ejs-mate";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import path from "path";
-import { fileURLToPath } from "url";
 import session from "express-session";
 import passport from "passport";
-// import LocalStrategy from "passport-local";
+import LocalStrategy from "passport-local";
+import { fileURLToPath } from "url";
 
 
 import historyRoutes from "./routes/history.js";
@@ -33,21 +33,22 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Sessions & Passport
-app.use(
-  session({
-    secret: "supersecretkey",
+const sessionOptions = {
+    secret: "mysupersecretcode", // In production, use process.env.SESSION_SECRET
     resave: false,
-    saveUninitialized: false,
-  })
-);
-
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+};
+app.use(session(sessionOptions));
 app.use(passport.initialize());
 app.use(passport.session());
-
-passport.use(User.createStrategy());
+passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-
 // locals
 app.use((req, res, next) => {
   res.locals.currentUser = req.user || null;
@@ -72,7 +73,11 @@ app.get("/", isLoggedIn, async (req, res) => {
   const history = await History.find({ owner: req.user._id }).sort({
     createdAt: -1,
   });
-  res.render("main/index.ejs", { history });
+  const record = await History.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
+  res.render("main/index.ejs", { history, record });
 });
 
 const PORT = process.env.PORT || 3000;
