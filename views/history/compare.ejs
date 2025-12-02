@@ -1,57 +1,53 @@
 <% layout('/layout/layout') -%>
 
-    <h2>Compare Versions — <%= topic %>
-    </h2>
+<h2>Compare Versions — <%= topic %></h2>
 
-    <h3>Research Changes</h3>
+<h3>Research Changes</h3>
 
-    <div class="toggle-container">
-        <label class="switch">
-            <input type="checkbox" id="toggleDiff" />
-            <span class="slider"></span>
-        </label>
-        <span>Difference</span>
+<div class="toggle-container">
+  <label class="switch">
+    <input type="checkbox" id="toggleDiff" />
+    <span class="slider"></span>
+  </label>
+  <span>Difference</span>
+</div>
+
+<div id="simpleView">
+  <h3>Simple Comparison</h3>
+
+  <div class="simple-container markdown-body">
+    <div class="column-box">
+      <h4>Previous Response</h4>
+      <%- marked.parse(oldMarkdown) %>
     </div>
 
-    <div id="simpleView">
-        <h3>Simple Comparison</h3>
+    <div class="column-box">
+      <h4>New Response</h4>
+      <%- marked.parse(newMarkdown) %>
+    </div>
+  </div>
+</div>
 
-        <div class="simple-container markdown-body">
-            <div class="column-box">
-                <h4>Previous Response</h4>
-                <%- marked.parse(oldMarkdown) %>
-            </div>
+<div id="diffView" style="display: none">
+  <h3>Difference View</h3>
 
-            <div class="column-box">
-                <h4>New Response</h4>
-                <%- marked.parse(newMarkdown) %>
-            </div>
-        </div>
+  <div class="diff-container">
+    <div class="diff-column">
+      <strong>Removed (Old Response)</strong><br /><br />
+      <% researchDiff.forEach(part => { if (!part.value.trim()) return; %>
+      <p class="<%= part.removed ? 'removed' : '' %>">
+        <%= part.value %>
+      </p>
+      <% }) %>
     </div>
 
-    <div id="diffView" style="display: none">
-        <h3>Difference View</h3>
-
-        <div class="diff-container">
-            <!-- Old -->
-            <div class="diff-column">
-                <strong>Removed (Old Response)</strong><br /><br />
-                <% researchDiff.forEach(part=> { if (!part.value.trim()) return; %>
-                    <p class="<%= part.removed ? 'removed' : '' %>">
-                        <%= part.value %>
-                    </p>
-                    <% }) %>
-            </div>
-
-            <!-- New -->
-            <div class="diff-column">
-                <strong>Added (New Response)</strong><br /><br />
-                <% researchDiff.forEach(part=> { if (!part.value.trim()) return; %>
-                    <p class="<%= part.added ? 'added' : '' %>">
-                        <%= part.value %>
-                    </p>
-                    <% }) %>
-            </div>
-        </div>
+    <div class="diff-column">
+      <strong>Added (New Response)</strong><br /><br />
+      <% researchDiff.forEach(part => { if (!part.value.trim()) return; %>
+      <p class="<%= part.added ? 'added' : '' %>">
+        <%= part.value %>
+      </p>
+      <% }) %>
     </div>
-
+  </div>
+</div>

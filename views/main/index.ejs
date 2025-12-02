@@ -1,83 +1,99 @@
 <% layout('/layout/layout') -%>
-    <div class="max-w-5xl mx-auto py-10">
-      <h1 class="text-3xl font-bold text-center mb-8">
-        📚 Exam Preparation Dashboard
-      </h1>
+<div class="max-w-5xl mx-auto py-4">
+  <h1 class="text-3xl font-bold text-center mb-6">
+    📚 Exam Preparation Dashboard
+  </h1>
 
-      <form id="studyForm" class="bg-white shadow p-6 rounded-lg">
-        <label class="block mb-2 text-lg">Select Model:</label>
-        <select
-          id="model"
-          class="border border-gray-300 rounded-lg px-3 py-2 w-full mb-4"
-        >
-          <option value="gemini-2.5-flash-lite" selected>
-            Gemini 2.5 Flash Lite (Fast)
-          </option>
-          <option value="gemini-2.5-flash">Gemini 2.5 Flash (Detailed)</option>
-        </select>
+  <div class="card">
+    <form id="studyForm">
+      <label class="block mb-2 text-lg">Select Model:</label>
+      <select
+        id="model"
+        class="border border-gray-300 rounded-lg px-3 py-2 w-full mb-4"
+      >
+        <option value="gemini-2.5-flash-lite" selected>
+          Gemini 2.5 Flash Lite (Fast)
+        </option>
+        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Detailed)</option>
+      </select>
 
-        <input
-          id="topic"
-          placeholder="Enter topic e.g. HTML, CSS, Databases"
-          class="border border-gray-300 rounded-lg px-3 py-2 w-full mb-4"
-        />
+      <input
+        id="topic"
+        placeholder="Enter topic e.g. HTML, CSS, Databases"
+        class="border border-gray-300 rounded-lg px-3 py-2 w-full mb-4"
+      />
 
-        <button
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          Start Study
-        </button>
-      </form>
+      <button
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+      >
+        Start Study
+      </button>
+    </form>
+  </div>
 
-      <div id="status" class="my-4 text-gray-700"></div>
+  <div id="status" class="my-4 text-gray-700 text-sm"></div>
 
-      <div id="output" class="hidden markdown-body">
-        <div class="bg-white p-4 rounded-lg shadow mb-6">
-          <h2 class="text-2xl font-semibold mb-2">🔍 Research</h2>
-          <div id="research" class="prose"></div>
-        </div>
-
-        <div class="bg-white p-4 rounded-lg shadow">
-          <h2 class="text-2xl font-semibold mb-2">🧠 Summary</h2>
-          <div id="summary" class="prose"></div>
-        </div>
-
-        <button
-          id="generateQuizBtn"
-          class="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hidden"
-        >
-          🎯 Generate Quiz
-        </button>
-
-        <div
-          id="quizOutput"
-          class="hidden bg-white p-4 rounded-lg shadow markdown-body mt-4"
-        ></div>
-        <button
-          id="exportPdfBtn"
-          class="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 hidden"
-        >
-          📄 Export Notes to PDF
-        </button>
-      </div>
-
-      <h2 class="text-2xl font-semibold mt-10 mb-3">📜 History</h2>
-      <p><a href="/history">View all</a></p>
-      <ul class="bg-white rounded-lg shadow divide-y divide-gray-200">
-        <% history.forEach(h => { %>
-        <li class="p-4">
-          <strong><%= h.topic %></strong>
-          <p class="text-sm text-gray-600"><%= h.createdAt.toDateString() %></p>
-          <form
-            action="/history/delete/<%= h.id %>"
-            method="POST"
-            style="display: inline"
-          >
-            <button class="delete-btn">
-              <i class="fas fa-trash"></i>
-            </button>
-          </form>
-        </li>
-        <% }) %>
-      </ul>
+  <div id="output" class="hidden markdown-body">
+    <div class="card">
+      <h2 class="text-2xl font-semibold mb-2">🔍 Research</h2>
+      <div id="research" class="prose"></div>
     </div>
+
+    <div class="card">
+      <h2 class="text-2xl font-semibold mb-2">🧠 Summary</h2>
+      <div id="summary" class="prose"></div>
+    </div>
+
+    <button
+      id="generateQuizBtn"
+      class="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hidden"
+    >
+      🎯 Generate Quiz
+    </button>
+
+    <div
+      id="quizOutput"
+      class="hidden bg-white p-4 rounded-lg shadow markdown-body mt-4"
+    ></div>
+
+    <button
+      id="generateFlashcardsBtn"
+      class="mt-4 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 hidden"
+    >
+      📘 Generate Flashcards
+    </button>
+    <div
+      id="flashcardOutput"
+      class="hidden bg-white p-4 rounded-lg shadow markdown-body mt-4"
+    ></div>
+
+    <button
+      id="generateDiagramBtn"
+      class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 hidden"
+    >
+      🧠 Generate Mind Map
+    </button>
+
+    <div
+      id="diagramWrapper"
+      class="hidden relative bg-white p-4 rounded-lg shadow mt-4"
+    >
+      <div class="absolute top-2 right-2 flex gap-2 z-20">
+        <button id="zoomInBtn" class="mind-btn">+</button>
+        <button id="zoomOutBtn" class="mind-btn">−</button>
+        <button id="resetZoomBtn" class="mind-btn">⟳</button>
+        <button id="fullScreenBtn" class="mind-btn">⛶</button>
+      </div>
+      <div id="mindmapContainer" class="w-full h-72 overflow-hidden">
+        <div id="mindmapDiagram" class="mermaid"></div>
+      </div>
+    </div>
+
+    <button
+      id="exportPdfBtn"
+      class="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 hidden"
+    >
+      📄 Export Notes to PDF
+    </button>
+  </div>
+</div>

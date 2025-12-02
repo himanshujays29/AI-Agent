@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const historySchema = new mongoose.Schema(
   {
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     topic: String,
     research: String,
     summary: String,

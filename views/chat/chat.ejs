@@ -1,0 +1,70 @@
+<% layout('/layout/layout') -%>
+<div class="max-w-3xl mx-auto p-6">
+  <h1 class="text-2xl font-semibold mb-4"><%= chat.title %></h1>
+
+  <div id="chatMessages" class="bg-white p-4 rounded-lg shadow h-96 overflow-y-auto mb-4">
+    <% chat.messages.forEach(msg => { %>
+      <div class="my-2 flex <%= msg.role === 'user' ? 'justify-end' : 'justify-start' %>">
+        <div class="p-3 max-w-xs rounded-lg <%= msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200' %>">
+          <%= msg.text %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <div class="flex">
+    <input
+      id="msgInput"
+      class="flex-grow border rounded-l px-4 py-2"
+      placeholder="Type a message..."
+    />
+    <button id="sendBtn" class="bg-blue-600 px-4 py-2 text-white rounded-r">
+      Send
+    </button>
+  </div>
+</div>
+
+<script>
+  const sendBtn = document.getElementById("sendBtn");
+  const msgInput = document.getElementById("msgInput");
+  const msgBox = document.getElementById("chatMessages");
+
+  function appendBubble(role, text) {
+    const wrap = document.createElement("div");
+    wrap.className = "my-2 flex " + (role === "user" ? "justify-end" : "justify-start");
+
+    const bubble = document.createElement("div");
+    bubble.className =
+      "p-3 max-w-xs rounded-lg " +
+      (role === "user" ? "bg-blue-600 text-white" : "bg-gray-200");
+    bubble.innerText = text;
+
+    wrap.appendChild(bubble);
+    msgBox.appendChild(wrap);
+
+    msgBox.scrollTop = msgBox.scrollHeight;
+  }
+
+  sendBtn.onclick = async () => {
+    const text = msgInput.value.trim();
+    if (!text) return;
+
+    appendBubble("user", text);
+    msgInput.value = "";
+
+    const res = await fetch("/chat/<%= chat._id %>/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userMessage: text }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      appendBubble("model", data.reply);
+    }
+  };
+
+  msgInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendBtn.click();
+  });
+</script>

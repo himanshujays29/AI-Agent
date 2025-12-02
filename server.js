@@ -1,4 +1,3 @@
-
 import express from "express";
 import mongoose from "mongoose";
 import ejsMate from "ejs-mate";
@@ -6,10 +5,19 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import path from "path";
 import { fileURLToPath } from "url";
-import historyRoutes from "./routes/history.js";
-import History from "./models/History.js";
-import apiRoutes from "./routes/api.js";
+import session from "express-session";
+import passport from "passport";
+// import LocalStrategy from "passport-local";
 
+
+import historyRoutes from "./routes/history.js";
+import apiRoutes from "./routes/api.js";
+import authRoutes from "./routes/auth.js";
+import chatRoutes from "./routes/chat.js";
+
+import History from "./models/History.js";
+import User from "./models/User.js";
+import { isLoggedIn } from "./middleware.js";
 
 dotenv.config();
 const app = express();
@@ -24,7 +32,25 @@ app.engine("ejs", ejsMate);
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 
+// Sessions & Passport
+app.use(
+  session({
+    secret: "supersecretkey",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// locals
 app.use((req, res, next) => {
+  res.locals.currentUser = req.user || null;
   res.locals.redirectUrl = req.get("referer") || "/";
   next();
 });
@@ -36,12 +62,16 @@ mongoose
   .catch((err) => console.error("MongoDB error:", err));
 
 // Routes
+app.use("/auth", authRoutes);
 app.use("/api", apiRoutes);
 app.use("/history", historyRoutes);
+app.use("/chat", chatRoutes);
 
-// Homepage
-app.get("/", async (req, res) => {
-  const history = await History.find().sort({ createdAt: -1 });
+// Homepage (protected)
+app.get("/", isLoggedIn, async (req, res) => {
+  const history = await History.find({ owner: req.user._id }).sort({
+    createdAt: -1,
+  });
   res.render("main/index.ejs", { history });
 });
 
@@ -49,3 +79,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
   console.log(`🚀 Server running at http://localhost:${PORT}`)
 );
+
+

@@ -4,7 +4,8 @@ dotenv.config();
 
 export async function summaryAgent(topic, model = "gemini-2.5-flash") {
   const API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!API_KEY) throw new Error("Missing GEMINI_API_KEY (or GOOGLE_API_KEY) in environment");
+  if (!API_KEY)
+    throw new Error("Missing GEMINI_API_KEY (or GOOGLE_API_KEY) in environment");
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`,
@@ -26,7 +27,7 @@ Include:
 - 4-5 key takeaways
 - Simple example (if applicable)
 Output in Markdown.
-`
+`,
               },
             ],
           },
@@ -35,8 +36,10 @@ Output in Markdown.
     }
   );
 
-const data = await response.json();
-console.log(data);
-const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response text found.";
-return text;
+  const data = await response.json();
+  console.log("summaryAgent:", data);
+  const text =
+    data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+    "No response text found.";
+  return text;
 }

@@ -6,7 +6,7 @@ export async function runExamWorkflow(topic, pushProgress, model) {
   const research = await researchAgent(topic, model);
 
   pushProgress("🧠 Summarizing topic...");
-  const summary = await summaryAgent( topic, model);
+  const summary = await summaryAgent(topic, model);
 
   pushProgress("✅ Study notes ready!");
   return { research, summary };

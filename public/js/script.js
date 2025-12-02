@@ -1,4 +1,6 @@
 const toggle = document.getElementById("toggleDiff");
+
+if (toggle) {
   const simpleView = document.getElementById("simpleView");
   const diffView = document.getElementById("diffView");
 
@@ -11,3 +13,4 @@ const toggle = document.getElementById("toggleDiff");
       simpleView.style.display = "block";
     }
   });
+}

@@ -1,97 +1,184 @@
 <% layout('/layout/layout') -%>
-  <div class="max-w-6xl py-10 markdown-body responce-container">
-      <a     href="/history"     class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-6 inline-block"
-         >⬅ Back to History</a  >
-      <h1 class="text-3xl font-bold mb-4">
-      <%= record.topic %>
-    </h1>
-      <p class="text-sm text-gray-500 mb-6">
-          Generated: <%= record.createdAt.toDateString() %><br>
-        Model: <strong class="text-blue-600">
-          <%= record.model %>
-        </strong> <!-- Feature 3 -->
-          </p>
+<div class="max-w-6xl py-10 markdown-body responce-container">
+  <a
+    href="/history"
+    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-6 inline-block"
+    >⬅ Back to History</a
+  >
 
-      <div class="bg-white p-4 rounded-lg shadow mb-6">
-          <h2 class="text-2xl font-semibold mb-2">🔍 Research</h2>
-          <div class="prose"><%- marked.parse(record.research) %></div>
-        </div>
+  <h1 class="text-3xl font-bold mb-4">
+    <%= record.topic %>
+  </h1>
+  <p class="text-sm text-gray-500 mb-6">
+    Generated: <%= record.createdAt.toDateString() %><br />
+    Model:
+    <strong class="text-blue-600"><%= record.model %></strong>
+  </p>
 
-      <div class="bg-white p-4 rounded-lg shadow mb-6">
-          <h2 class="text-2xl font-semibold mb-2">🧠 Summary</h2>
-          <div class="prose"><%- marked.parse(record.summary) %></div>
-        </div>
-
-      <!-- Chat Tutor Section (Feature 1) -->
-      <div id="chatContainer" class="bg-gray-100 p-4 rounded-lg shadow mb-6">
-          <h2 class="text-2xl font-semibold mb-4 text-green-700">💬 AI Study Tutor</h2>
-          <div id="chatHistory"
-        class="space-y-4 h-64 overflow-y-auto p-2 bg-white rounded-lg mb-4 border border-gray-300">
-        <div class="flex justify-start">
-          <div class="bg-green-200 text-gray-800 p-3 rounded-xl rounded-bl-none max-w-xs">
-            Hello! I'm your AI tutor for **<%= record.topic %>**. Ask me anything!
-          </div>
-        </div>
-           
-      </div>
-      <div id="chatInputArea" class="flex">
-        <input type="text" id="chatMessage" placeholder="Ask a follow-up question..."
-          class="flex-grow border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" />
-        <button id="sendChatBtn"
-          class="bg-green-600 text-white px-4 py-2 rounded-r-lg hover:bg-green-700 transition duration-150 disabled:opacity-50">
-          <i class="fas fa-paper-plane"></i> Send
-        </button>
-      </div>
-      <div id="chatStatus" class="mt-2 text-sm text-gray-600"></div>
-       
-    </div>
-      <!-- End Chat Tutor Section -->
-
-      <a     id="generateQuizHistory"    
-      class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-4 inline-block"  >
-          🎯 Generate Quiz for this topic
-        </a>
-
-      <div     id="quizBox"     class="hidden markdown-body bg-white p-4 rounded-lg shadow mt-4"  >
-      <%- record.quiz ? marked.parse(record.quiz) : '' %>
-    </div>
-    <% if(record.quiz) { %>
-      <script>document.getElementById('quizBox').classList.remove('hidden');</script>
-      <% } %>
-
-          <a     href="/api/pdf/<%= record._id %>"    
-          class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 inline-block"  >
-              📄 Export as PDF
-            </a>
-          <br /><br />
-          <label>Select Model:</label>
-          <select id="regenModelSelect" class="model-dropdown">
-              <option value="gemini-2.5-flash-lite" <%=record.model==='gemini-2.5-flash-lite' ? 'selected' : '' %>
-            >Gemini-2.5-Flash-Lite (Best)</option>
-              <option value="gemini-2.5-flash" <%=record.model==='gemini-2.5-flash' ? 'selected' : '' %>
-            >Gemini-2.5-Flash</option>
-            </select>
-          <form     action="/history/regenerate/<%= record._id %>"     method="POST"     style="margin-top: 20px"  >
-              <button       type="button"       class="regen-btn"       id="regen-btn"      
-            onclick="regenerateNotes('<%= record._id %>')"    >
-                  <i class="fa-solid fa-rotate-right"></i> Regenerate Notes
-                </button>
-            </form>
-
-          <div id="regenLoader" style="display: none; margin-top: 15px">
-              <i       class="fa-solid fa-spinner fa-spin"       style="font-size: 24px; color: #007bff"    ></i>
-              <span id="regenLoaderText">Regenerating… please wait</span>
-            </div>
-
-          <a href="/history/compare/<%= record._id %>" class="compare-btn">
-  <i class="fa-solid fa-code-compare"></i> Compare Versions
-</a>
-
-          <div style="margin-top: 30px">
-              <form action="/history/delete/<%= record._id %>" method="POST">
-                  <button class="delete-detail-btn">
-                      <i class="fas fa-trash"></i> Delete This History
-                    </button>
-                </form>
-            </div>
+  <div class="bg-white p-4 rounded-lg shadow mb-6">
+    <h2 class="text-2xl font-semibold mb-2">🔍 Research</h2>
+    <div class="prose"><%- marked.parse(record.research) %></div>
   </div>
+
+  <div class="bg-white p-4 rounded-lg shadow mb-6">
+    <h2 class="text-2xl font-semibold mb-2">🧠 Summary</h2>
+    <div class="prose"><%- marked.parse(record.summary) %></div>
+  </div>
+
+  <!-- Chat Tutor -->
+  <div id="chatContainer" class="bg-gray-100 p-4 rounded-lg shadow mb-6">
+    <h2 class="text-2xl font-semibold mb-4 text-green-700">💬 AI Study Tutor</h2>
+    <div
+      id="chatHistory"
+      class="space-y-4 h-64 overflow-y-auto p-2 bg-white rounded-lg mb-4 border border-gray-300"
+    >
+      <div class="flex justify-start">
+        <div
+          class="bg-green-200 text-gray-800 p-3 rounded-xl rounded-bl-none max-w-xs"
+        >
+          Hello! I'm your AI tutor for <strong><%= record.topic %></strong>. Ask
+          me anything!
+        </div>
+      </div>
+    </div>
+    <div id="chatInputArea" class="flex">
+      <input
+        type="text"
+        id="chatMessage"
+        placeholder="Ask a follow-up question..."
+        class="flex-grow border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+      />
+      <button
+        id="sendChatBtn"
+        class="bg-green-600 text-white px-4 py-2 rounded-r-lg hover:bg-green-700 transition duration-150 disabled:opacity-50"
+      >
+        <i class="fas fa-paper-plane"></i> Send
+      </button>
+    </div>
+    <div id="chatStatus" class="mt-2 text-sm text-gray-600"></div>
+  </div>
+
+  <a
+    id="generateQuizHistory"
+    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-4 inline-block"
+  >
+    🎯 Generate Quiz for this topic
+  </a>
+
+  <div
+    id="quizBox"
+    class="hidden markdown-body bg-white p-4 rounded-lg shadow mt-4"
+  >
+    <%- record.quiz ? marked.parse(record.quiz) : '' %>
+  </div>
+  <% if(record.quiz) { %>
+  <script>
+    document.getElementById("quizBox").classList.remove("hidden");
+  </script>
+  <% } %>
+
+  <a
+    id="generateFlashcardsHistory"
+    class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 mt-4 inline-block"
+  >
+    📘 Generate Flashcards
+  </a>
+  <div
+    id="flashcardBox"
+    class="hidden markdown-body bg-white p-4 rounded-lg shadow mt-4"
+  >
+    <%- record.flashcards ? marked.parse(record.flashcards) : '' %>
+  </div>
+  <% if(record.flashcards) { %>
+  <script>
+    document.getElementById("flashcardBox").classList.remove("hidden");
+  </script>
+  <% } %>
+
+  <a
+    id="generateDiagramHistory"
+    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 mt-4 inline-block"
+  >
+    🧠 Generate Mind Map
+  </a>
+  <div
+    id="diagramWrapper"
+    class="hidden relative bg-white p-4 rounded-lg shadow mt-4"
+  >
+    <div class="absolute top-2 right-2 flex gap-2 z-20">
+      <button id="zoomInBtn" class="mind-btn">+</button>
+      <button id="zoomOutBtn" class="mind-btn">−</button>
+      <button id="resetZoomBtn" class="mind-btn">⟳</button>
+      <button id="fullScreenBtn" class="mind-btn">⛶</button>
+    </div>
+    <div id="mindmapContainer" class="w-full h-72 overflow-hidden">
+      <div id="mindmapDiagram" class="mermaid">
+        <%= record.diagram || '' %>
+      </div>
+    </div>
+  </div>
+  <% if(record.diagram) { %>
+  <script>
+    document.getElementById("diagramWrapper").classList.remove("hidden");
+  </script>
+  <% } %>
+
+  <a
+    href="/api/pdf/<%= record._id %>"
+    class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 inline-block mt-4"
+  >
+    📄 Export as PDF
+  </a>
+
+  <br /><br />
+  <label>Select Model:</label>
+  <select id="regenModelSelect" class="model-dropdown">
+    <option
+      value="gemini-2.5-flash-lite"
+      <%=record.model==='gemini-2.5-flash-lite' ? 'selected' : '' %>
+    >
+      Gemini-2.5-Flash-Lite (Best)
+    </option>
+    <option
+      value="gemini-2.5-flash"
+      <%=record.model==='gemini-2.5-flash' ? 'selected' : '' %>
+    >
+      Gemini-2.5-Flash
+    </option>
+  </select>
+
+  <form
+    action="/history/regenerate/<%= record._id %>"
+    method="POST"
+    style="margin-top: 20px"
+  >
+    <button
+      type="button"
+      class="regen-btn"
+      id="regen-btn"
+      onclick="regenerateNotes('<%= record._id %>')"
+    >
+      <i class="fa-solid fa-rotate-right"></i> Regenerate Notes
+    </button>
+  </form>
+
+  <div id="regenLoader" style="display: none; margin-top: 15px">
+    <i
+      class="fa-solid fa-spinner fa-spin"
+      style="font-size: 24px; color: #007bff"
+    ></i>
+    <span id="regenLoaderText">Regenerating… please wait</span>
+  </div>
+
+  <a href="/history/compare/<%= record._id %>" class="compare-btn">
+    <i class="fa-solid fa-code-compare"></i> Compare Versions
+  </a>
+
+  <div style="margin-top: 30px">
+    <form action="/history/delete/<%= record._id %>" method="POST">
+      <button class="delete-detail-btn">
+        <i class="fas fa-trash"></i> Delete This History
+      </button>
+    </form>
+  </div>
+</div>

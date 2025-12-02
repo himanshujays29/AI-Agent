@@ -1,15 +1,12 @@
-
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 dotenv.config();
 
 /**
- * Executes a conversational turn using the specified model and chat history.
- * @param {string} topic The original topic for context.
- * @param {Array<{role: string, text: string}>} chatHistory Previous conversation messages.
- * @param {string} userMessage The new message from the user.
- * @param {string} model The LLM model to use.
- * @returns {Promise<string>} The LLM's text response.
+ * @param {string} topic
+ * @param {Array<{role: string, text: string}>} chatHistory
+ * @param {string} userMessage
+ * @param {string} model
  */
 export async function chatAgent(
   topic,
@@ -20,21 +17,19 @@ export async function chatAgent(
   const API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!API_KEY) throw new Error("Missing API key");
 
-  // Construct the conversation history for the API payload
   const contents = chatHistory.map((msg) => ({
     role: msg.role === "user" ? "user" : "model",
     parts: [{ text: msg.text }],
   }));
 
-  // Add the current user message
   contents.push({
     role: "user",
     parts: [{ text: userMessage }],
   });
 
   const systemInstruction = `You are a helpful and knowledgeable AI Study Tutor specializing in the topic: "${topic}".
-  Answer the user's questions clearly, concisely, and accurately based on the established topic.
-  Keep your responses in clean Markdown format.`;
+Answer clearly, concisely, and accurately.
+Use clean Markdown.`;
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
@@ -45,7 +40,7 @@ export async function chatAgent(
         "x-goog-api-key": API_KEY,
       },
       body: JSON.stringify({
-        contents: contents,
+        contents,
         systemInstruction: {
           parts: [{ text: systemInstruction }],
         },
@@ -55,7 +50,7 @@ export async function chatAgent(
   );
 
   const data = await response.json();
-  console.log(data);
+  console.log("chatAgent:", data);
 
   const text =
     data?.candidates?.[0]?.content?.parts?.[0]?.text ||

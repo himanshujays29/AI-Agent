@@ -1,4 +1,3 @@
-// agents/quizAgent.js
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 dotenv.config();
@@ -25,34 +24,32 @@ Generate a quiz for the topic "${topic}".
 Include:
 
 - 5 multiple choice questions (A/B/C/D)
-- 3 short-answer question
+- 3 short-answer questions
 - Provide correct answers at the bottom in this format:
 
-### Answers  
-1. B  
-2. A  
-3. D  
+### Answers
+1. B
+2. A
+3. D
 ...
 
 Output the quiz in **clean Markdown**, using:
-
 - Proper headings
 - Each question on separate lines
 - Line breaks (two spaces at end)
 - Horizontal separators (---)
 - Bold question text
-.
-                `
-              }
-            ]
-          }
-        ]
-      })
+`,
+              },
+            ],
+          },
+        ],
+      }),
     }
   );
 
   const data = await response.json();
-  console.log(data)
+  console.log("quizAgent:", data);
   const text =
     data?.candidates?.[0]?.content?.parts?.[0]?.text ||
     "Unable to generate quiz.";

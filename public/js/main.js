@@ -1,22 +1,28 @@
+// --- MAIN DASHBOARD PAGE LOGIC ---
+
 const form = document.getElementById("studyForm");
 const statusDiv = document.getElementById("status");
 const output = document.getElementById("output");
 const researchDiv = document.getElementById("research");
 const summaryDiv = document.getElementById("summary");
 const quizBtn = document.getElementById("generateQuizBtn");
+const flashBtn = document.getElementById("generateFlashcardsBtn");
+const diagramBtn = document.getElementById("generateDiagramBtn");
 
-// Check if these elements exist before manipulating classes/events
-if (quizBtn) {
-  quizBtn.classList.remove("hidden");
-}
+// Show buttons if exist
+if (quizBtn) quizBtn.classList.remove("hidden");
+if (flashBtn) flashBtn.classList.remove("hidden");
+if (diagramBtn) diagramBtn.classList.remove("hidden");
 
 if (form) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const topic = document.getElementById("topic").value.trim();
     const model = document.getElementById("model").value;
-    // Use a modal/toast instead of alert
-    if (!topic) return console.error("Enter a topic!");
+    if (!topic) {
+      console.error("Enter a topic!");
+      return;
+    }
 
     statusDiv.innerHTML = "⏳ Researching...";
     output.classList.add("hidden");
@@ -28,7 +34,6 @@ if (form) {
         body: JSON.stringify({ topic, model }),
       });
 
-      console.log("Response status:", res.status);
       const data = await res.json();
       console.log("Response data:", data);
 
@@ -42,36 +47,83 @@ if (form) {
       summaryDiv.innerHTML = marked.parse(data.summary);
       output.classList.remove("hidden");
 
-      // Show quiz button
-      const quizBtn = document.getElementById("generateQuizBtn");
-      quizBtn.classList.remove("hidden");
+      // QUIZ button
+      if (quizBtn) {
+        quizBtn.classList.remove("hidden");
+        quizBtn.onclick = async () => {
+          quizBtn.innerText = "⏳ Generating quiz...";
+          const resQuiz = await fetch(`/api/quiz/${data.id}`);
+          const quizData = await resQuiz.json();
 
-      // Attach click
-      quizBtn.onclick = async () => {
-        quizBtn.innerText = "⏳ Generating quiz...";
-        const resQuiz = await fetch(`/api/quiz/${data.id}`);
-        const quizData = await resQuiz.json();
+          if (!quizData.success) {
+            console.error("Error generating quiz");
+            quizBtn.innerText = "🎯 Error Generating Quiz";
+            return;
+          }
 
-        if (!quizData.success) {
-          console.error("Error generating quiz");
-          quizBtn.innerText = "🎯 Error Generating Quiz";
-          return;
-        }
+          quizBtn.innerText = "🎯 Generate Quiz Again";
+          document.getElementById("quizOutput").innerHTML = marked.parse(
+            quizData.quiz
+          );
+          document.getElementById("quizOutput").classList.remove("hidden");
+        };
+      }
 
-        quizBtn.innerText = "🎯 Generate Quiz Again";
-        document.getElementById("quizOutput").innerHTML = marked.parse(
-          quizData.quiz
-        );
-        document.getElementById("quizOutput").classList.remove("hidden");
-      };
-
-      // Show PDF button
+      // PDF button
       const pdfBtn = document.getElementById("exportPdfBtn");
-      pdfBtn.classList.remove("hidden");
+      if (pdfBtn) {
+        pdfBtn.classList.remove("hidden");
+        pdfBtn.onclick = () => {
+          window.location.href = `/api/pdf/${data.id}`;
+        };
+      }
 
-      pdfBtn.onclick = () => {
-        window.location.href = `/api/pdf/${data.id}`;
-      };
+      // FLASHCARDS button
+      if (flashBtn) {
+        flashBtn.classList.remove("hidden");
+        flashBtn.onclick = async () => {
+          flashBtn.innerText = "⏳ Generating Flashcards...";
+          const resF = await fetch(`/api/flashcards/${data.id}`);
+          const fData = await resF.json();
+
+          if (!fData.success) {
+            flashBtn.innerText = "⚠ Error Generating Flashcards";
+            return;
+          }
+
+          flashBtn.innerText = "📘 Regenerate Flashcards";
+          const box = document.getElementById("flashcardOutput");
+          box.innerHTML = marked.parse(fData.flashcards);
+          box.classList.remove("hidden");
+        };
+      }
+
+      // DIAGRAM button
+      if (diagramBtn) {
+        diagramBtn.classList.remove("hidden");
+        diagramBtn.onclick = async () => {
+          diagramBtn.innerText = "⏳ Generating Mind Map...";
+          const resD = await fetch(`/api/diagram/${data.id}`);
+          const dData = await resD.json();
+
+          if (!dData.success) {
+            diagramBtn.innerText = "⚠ Error";
+            return;
+          }
+
+          diagramBtn.innerText = "🧠 Regenerate Mind Map";
+          const wrapper = document.getElementById("diagramWrapper");
+          const diagram = document.getElementById("mindmapDiagram");
+
+          if (diagram) {
+            diagram.textContent = dData.diagram;
+          }
+          wrapper.classList.remove("hidden");
+
+          mermaid.init(undefined, ".mermaid");
+          initMindmapControls();
+        };
+      }
     } catch (error) {
       console.error("Fetch error:", error);
       statusDiv.innerHTML = "❌ Network error: " + error.message;
@@ -79,11 +131,10 @@ if (form) {
   });
 }
 
-// --- HISTORY DETAIL PAGE LOGIC ---
+// --- HISTORY DETAIL PAGE CHAT TUTOR LOGIC ---
 
-// Chat Tutor Logic (Feature 1)
-const chatHistory = []; // Stores the ongoing conversation: [{role: 'user'/'model', text: '...'}, ...]
 const chatContainer = document.getElementById("chatContainer");
+const chatHistoryLocal = [];
 
 if (chatContainer) {
   const recordIdMatch = window.location.pathname.match(
@@ -109,13 +160,10 @@ if (chatContainer) {
         : "bg-green-200 text-gray-800 rounded-bl-none"
     }`;
 
-    // Use marked.parse for model responses only, as they contain markdown
     messageBubble.innerHTML = role === "model" ? marked.parse(text) : text;
 
     messageWrapper.appendChild(messageBubble);
     chatHistoryDiv.appendChild(messageWrapper);
-
-    // Scroll to the bottom
     chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
   };
 
@@ -123,16 +171,14 @@ if (chatContainer) {
     const userMessage = chatMessageInput.value.trim();
     if (!userMessage || !recordId) return;
 
-    // Display user message
     appendMessage("user", userMessage);
-    chatHistory.push({ role: "user", text: userMessage });
+    chatHistoryLocal.push({ role: "user", text: userMessage });
 
     chatMessageInput.value = "";
     sendChatBtn.disabled = true;
     chatStatusDiv.innerText = "AI Tutor is thinking...";
 
     try {
-      // Add a placeholder for the model response
       appendMessage("model", '<i class="fas fa-spinner fa-spin"></i>');
       const modelPlaceholder =
         chatHistoryDiv.lastElementChild.querySelector(".bg-green-200");
@@ -140,16 +186,14 @@ if (chatContainer) {
       const res = await fetch(`/api/chat/${recordId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userMessage, chatHistory }),
+        body: JSON.stringify({ userMessage, chatHistory: chatHistoryLocal }),
       });
 
       const data = await res.json();
 
       if (data.success) {
         const modelResponse = data.response;
-        chatHistory.push({ role: "model", text: modelResponse });
-
-        // Replace placeholder with actual response
+        chatHistoryLocal.push({ role: "model", text: modelResponse });
         modelPlaceholder.innerHTML = marked.parse(modelResponse);
       } else {
         const errorMessage = data.error || "An error occurred during chat.";
@@ -170,14 +214,13 @@ if (chatContainer) {
   });
 }
 
-// Quiz Generation Logic (Modified for detail page)
+// QUIZ generation on history detail
 const generateQuizHistoryBtn = document.getElementById("generateQuizHistory");
 if (generateQuizHistoryBtn) {
   generateQuizHistoryBtn.onclick = async () => {
-    const btn = document.getElementById("generateQuizHistory");
+    const btn = generateQuizHistoryBtn;
     btn.innerText = "⏳ Generating quiz...";
 
-    // Extract record ID from URL path
     const recordIdMatch = window.location.pathname.match(
       /\/history\/([a-f\d]{24})/
     );
@@ -193,27 +236,75 @@ if (generateQuizHistoryBtn) {
 
     btn.innerText = "🎯 Regenerate Quiz";
 
+    const box = document.getElementById("quizBox");
     if (data.success) {
-      document.getElementById("quizBox").innerHTML = marked.parse(data.quiz);
-      document.getElementById("quizBox").classList.remove("hidden");
+      box.innerHTML = marked.parse(data.quiz);
     } else {
-      document.getElementById(
-        "quizBox"
-      ).innerHTML = `<div class="text-red-600">Error generating quiz: ${
+      box.innerHTML = `<div class="text-red-600">Error generating quiz: ${
         data.error || "Unknown error"
       }</div>`;
-      document.getElementById("quizBox").classList.remove("hidden");
     }
+    box.classList.remove("hidden");
   };
 }
 
-// Regenerate Notes Logic
+// FLASHCARDS on history detail
+const generateFlashcardsHistoryBtn = document.getElementById(
+  "generateFlashcardsHistory"
+);
+if (generateFlashcardsHistoryBtn) {
+  generateFlashcardsHistoryBtn.onclick = async () => {
+    const recordIdMatch = window.location.pathname.match(
+      /\/history\/([a-f\d]{24})/
+    );
+    const recordId = recordIdMatch ? recordIdMatch[1] : null;
+
+    generateFlashcardsHistoryBtn.innerText = "⏳ Generating...";
+
+    const res = await fetch(`/api/flashcards/${recordId}`);
+    const data = await res.json();
+
+    generateFlashcardsHistoryBtn.innerText = "📘 Regenerate Flashcards";
+
+    const box = document.getElementById("flashcardBox");
+    box.innerHTML = marked.parse(data.flashcards);
+    box.classList.remove("hidden");
+  };
+}
+
+// DIAGRAM on history detail
+const generateDiagramHistoryBtn = document.getElementById("generateDiagramHistory");
+if (generateDiagramHistoryBtn) {
+  generateDiagramHistoryBtn.onclick = async () => {
+    const recordIdMatch = window.location.pathname.match(
+      /\/history\/([a-f\d]{24})/
+    );
+    const recordId = recordIdMatch ? recordIdMatch[1] : null;
+
+    generateDiagramHistoryBtn.innerText = "⏳ Generating...";
+
+    const res = await fetch(`/api/diagram/${recordId}`);
+    const data = await res.json();
+
+    const wrapper = document.getElementById("diagramWrapper");
+    const diagram = document.getElementById("mindmapDiagram");
+    diagram.textContent = data.diagram;
+    wrapper.classList.remove("hidden");
+
+    mermaid.init(undefined, ".mermaid");
+    initMindmapControls();
+
+    generateDiagramHistoryBtn.innerText = "🧠 Regenerate Mind Map";
+  };
+}
+
+// Regenerate Notes (detail page)
 async function regenerateNotes(id) {
   const loader = document.getElementById("regenLoader");
   const loaderText = document.getElementById("regenLoaderText");
   loader.style.display = "block";
 
-  const model = document.getElementById("regenModelSelect").value; // The API route is /api/regenerate/:id, not /history/regenerate/:id
+  const model = document.getElementById("regenModelSelect").value;
 
   const response = await fetch(`/api/regenerate/${id}`, {
     method: "POST",
@@ -225,19 +316,13 @@ async function regenerateNotes(id) {
   loaderText.innerText = "Notes regenerated successfully!";
 
   if (data.success) {
-    // Small delay to let the user see the success message
     setTimeout(() => location.reload(), 500);
   } else {
     loaderText.innerText = "Error: " + (data.error || "Unknown error");
   }
 }
 
-// Attach to global scope for EJS onclick
-if (typeof window !== "undefined") {
-  window.regenerateNotes = regenerateNotes;
-  window.regenFromList = regenFromList; // Ensure this is also accessible
-}
-
+// Regen from history list
 function regenFromList(recordId) {
   const spinner = document.getElementById(`spinner-${recordId}`);
   const rotateIcon = document.querySelector(
@@ -248,14 +333,12 @@ function regenFromList(recordId) {
   );
   const dropdown = document.getElementById(`model-${recordId}`);
 
-  // Hide rotate icon and show spinner
   if (rotateIcon) rotateIcon.style.display = "none";
   if (spinner) spinner.style.display = "block";
   if (button) button.disabled = true;
 
   const selectedModel = dropdown.value;
 
-  // The API route is /api/regenerate/:id, not /history/regenerate/:id
   fetch(`/api/regenerate/${recordId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -264,9 +347,7 @@ function regenFromList(recordId) {
     .then((res) => res.json())
     .then((data) => {
       if (data.success) {
-        // Use console.log instead of alert
         console.log("Notes regenerated successfully!");
-        // Reload the page to see updated notes
         location.reload();
       } else {
         console.error("Error: " + data.error);
@@ -276,9 +357,82 @@ function regenFromList(recordId) {
       console.error("Failed to regenerate notes:", err);
     })
     .finally(() => {
-      // Show rotate icon and hide spinner
       if (rotateIcon) rotateIcon.style.display = "inline";
       if (spinner) spinner.style.display = "none";
       if (button) button.disabled = false;
     });
 }
+
+// expose to window
+if (typeof window !== "undefined") {
+  window.regenerateNotes = regenerateNotes;
+  window.regenFromList = regenFromList;
+}
+
+// Mindmap controls (fullscreen + zoom + pan)
+function initMindmapControls() {
+  const wrapper = document.getElementById("diagramWrapper");
+  const container = document.getElementById("mindmapContainer");
+  const diagram = document.getElementById("mindmapDiagram");
+  const zoomInBtn = document.getElementById("zoomInBtn");
+  const zoomOutBtn = document.getElementById("zoomOutBtn");
+  const resetZoomBtn = document.getElementById("resetZoomBtn");
+  const fullScreenBtn = document.getElementById("fullScreenBtn");
+
+  if (!wrapper || !container || !diagram) return;
+
+  let scale = 1;
+  let isPanning = false;
+  let startX, startY, scrollLeft, scrollTop;
+
+  diagram.classList.add("mindmap-scale");
+
+  if (zoomInBtn) {
+    zoomInBtn.onclick = () => {
+      scale += 0.1;
+      diagram.style.transform = `scale(${scale})`;
+    };
+  }
+
+  if (zoomOutBtn) {
+    zoomOutBtn.onclick = () => {
+      if (scale > 0.2) scale -= 0.1;
+      diagram.style.transform = `scale(${scale})`;
+    };
+  }
+
+  if (resetZoomBtn) {
+    resetZoomBtn.onclick = () => {
+      scale = 1;
+      diagram.style.transform = "scale(1)";
+      container.scrollTop = 0;
+      container.scrollLeft = 0;
+    };
+  }
+
+  if (fullScreenBtn) {
+    fullScreenBtn.onclick = () => {
+      wrapper.classList.toggle("fullscreen");
+      mermaid.init(undefined, ".mermaid");
+    };
+  }
+
+  container.addEventListener("mousedown", (e) => {
+    isPanning = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    scrollLeft = container.scrollLeft;
+    scrollTop = container.scrollTop;
+  });
+
+  container.addEventListener("mousemove", (e) => {
+    if (!isPanning) return;
+    container.scrollLeft = scrollLeft - (e.clientX - startX);
+    container.scrollTop = scrollTop - (e.clientY - startY);
+  });
+
+  container.addEventListener("mouseup", () => (isPanning = false));
+  container.addEventListener("mouseleave", () => (isPanning = false));
+}
+
+// No direct export, runs in browser
