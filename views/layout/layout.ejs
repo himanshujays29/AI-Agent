@@ -17,8 +17,7 @@
       mermaid.initialize({ startOnLoad: true });
     </script>
 
-    <!-- CRITICAL: Inject Firebase Config from Server to Client -->
-    <!-- This allows our client-side scripts to know which Firebase project to connect to -->
+    <!-- Inject Firebase Config -->
     <script>
       window.FIREBASE_CONFIG = <%- JSON.stringify(firebaseConfig) %>;
     </script>
@@ -28,7 +27,7 @@
     <div class="layout-root">
       <!-- SIDEBAR -->
       <aside class="sidebar" id="sidebar">
-        <!-- Header with collapse btn -->
+        <!-- Header -->
         <div class="px-4 py-4 flex items-center justify-between border-b border-chatgpt-border">
           <div class="flex items-center gap-2">
             <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-500 to-emerald-400 flex items-center justify-center text-white font-bold">
@@ -40,7 +39,7 @@
             </div>
           </div>
 
-          <button id="sidebarCollapseBtn" class="p-1 rounded-md hover:bg-chatgpt-soft text-xs" type="button" title="Collapse sidebar">
+          <button id="sidebarCollapseBtn" class="p-1 rounded-md hover:bg-chatgpt-soft text-xs" type="button">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
         </div>
@@ -62,31 +61,31 @@
             <span class="sidebar-label-text">New Chat</span>
           </a>
 
-          <!-- Your chats section -->
+          <!-- Your chats -->
           <div class="mt-4">
             <div class="sidebar-section-header">
               <div class="flex items-center gap-1">
                 <span class="sidebar-section-title">Your chats</span>
               </div>
-              <button id="toggleChatsBtn" class="section-toggle-btn" type="button" title="Hide / show chat list">
+              <button id="toggleChatsBtn" class="section-toggle-btn" type="button">
                 <i class="fa-solid fa-chevron-down"></i>
               </button>
             </div>
             <ul id="chatSessionList" class="sidebar-list open">
-              <li class="p-2 text-xs text-chatgpt-subtle">Loading sessions…</li>
+              <li class="p-2 text-xs text-chatgpt-subtle">Loading...</li>
             </ul>
           </div>
 
-          <!-- Study history section -->
+          <!-- Study history -->
           <div class="mt-4">
             <div class="sidebar-section-header">
               <span class="sidebar-section-title">Study history</span>
-              <button id="toggleHistoryBtn" class="section-toggle-btn" type="button" title="Hide / show history">
+              <button id="toggleHistoryBtn" class="section-toggle-btn" type="button">
                 <i class="fa-solid fa-chevron-down"></i>
               </button>
             </div>
             <ul id="historyList" class="sidebar-list open">
-              <li class="p-2 text-xs text-chatgpt-subtle">Loading…</li>
+              <li class="p-2 text-xs text-chatgpt-subtle">Loading...</li>
             </ul>
           </div>
         </nav>
@@ -119,13 +118,11 @@
 
       <!-- MAIN CONTENT -->
       <div class="main-content">
-        <!-- Mobile topbar -->
+        <!-- Mobile Header -->
         <header class="md:hidden flex items-center justify-between px-4 py-3 border-b border-chatgpt-border bg-chatgpt-sidebar">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-500 to-emerald-400 flex items-center justify-center text-white font-bold">
-              AI
-            </div>
-            <span class="text-sm font-semibold">Study Tutor</span>
+             <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-500 to-emerald-400 flex items-center justify-center text-white font-bold">AI</div>
+             <span class="text-sm font-semibold">Study Tutor</span>
           </div>
           <button id="mobileSidebarToggle" class="p-2 rounded-md hover:bg-chatgpt-soft">
             <i class="fa-solid fa-bars"></i>
@@ -142,14 +139,16 @@
     
     <script type="module">
       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-      mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
-      window.mermaid = mermaid;
+      try {
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+        window.mermaid = mermaid;
+      } catch(e) { console.log("Mermaid init skipped"); }
     </script>
     <script src="/js/main.js"></script>
     <script src="/js/script.js"></script>
 
     <script>
-      // Dark / light mode
+      // 1. Dark / light mode
       const themeToggle = document.getElementById("themeToggle");
       if (themeToggle) {
         themeToggle.addEventListener("click", () => {
@@ -157,115 +156,130 @@
           const mode = document.body.classList.contains("dark") ? "dark" : "light";
           localStorage.setItem("ai-theme", mode);
         });
-
-        const savedMode = localStorage.getItem("ai-theme");
-        if (savedMode === "dark") document.body.classList.add("dark");
+        if (localStorage.getItem("ai-theme") === "dark") document.body.classList.add("dark");
       }
 
-      // Sidebar collapse (desktop)
+      // 2. Sidebar collapse (desktop)
       const sidebar = document.getElementById("sidebar");
       const sidebarCollapseBtn = document.getElementById("sidebarCollapseBtn");
-      if (sidebarCollapseBtn) {
+      
+      if (sidebarCollapseBtn && sidebar) {
         sidebarCollapseBtn.addEventListener("click", () => {
           document.body.classList.toggle("sidebar-collapsed");
           sidebar.classList.toggle("collapsed");
+          
           const icon = sidebarCollapseBtn.querySelector("i");
-          icon.classList.toggle("fa-chevron-left");
-          icon.classList.toggle("fa-chevron-right");
-          localStorage.setItem(
-            "ai-sidebar",
-            sidebar.classList.contains("collapsed") ? "collapsed" : "open"
-          );
+          if(icon) {
+            icon.classList.toggle("fa-chevron-left");
+            icon.classList.toggle("fa-chevron-right");
+          }
+          localStorage.setItem("ai-sidebar", sidebar.classList.contains("collapsed") ? "collapsed" : "open");
         });
 
-        const savedSidebar = localStorage.getItem("ai-sidebar");
-        if (savedSidebar === "collapsed") {
+        // Init state
+        if (localStorage.getItem("ai-sidebar") === "collapsed") {
           document.body.classList.add("sidebar-collapsed");
           sidebar.classList.add("collapsed");
           const icon = sidebarCollapseBtn.querySelector("i");
-          icon.classList.remove("fa-chevron-left");
-          icon.classList.add("fa-chevron-right");
+          if(icon) {
+            icon.classList.remove("fa-chevron-left");
+            icon.classList.add("fa-chevron-right");
+          }
         }
       }
 
-      // Mobile sidebar toggle (simple)
+      // 3. Mobile sidebar toggle
       const mobileSidebarToggle = document.getElementById("mobileSidebarToggle");
-      if (mobileSidebarToggle) {
+      if (mobileSidebarToggle && sidebar) {
         mobileSidebarToggle.addEventListener("click", () => {
           sidebar.classList.toggle("mobile-open");
         });
       }
       
-      // Collapse sections
-      const toggleChatsBtn = document.getElementById("toggleChatsBtn");
-      const toggleHistoryBtn = document.getElementById("toggleHistoryBtn");
-
-      function toggleSection(btn, listId) {
-        const list = document.getElementById(listId);
-        if (!list) return;
-        list.classList.toggle("open");
-        btn.querySelector("i").classList.toggle("rotated");
+      // 4. Collapse sections
+      function setupToggle(btnId, listId) {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.addEventListener("click", () => {
+            const list = document.getElementById(listId);
+            if (list) list.classList.toggle("open");
+            const icon = btn.querySelector("i");
+            if(icon) icon.classList.toggle("rotated");
+          });
+        }
       }
+      setupToggle("toggleChatsBtn", "chatSessionList");
+      setupToggle("toggleHistoryBtn", "historyList");
 
-      if (toggleChatsBtn) {
-        toggleChatsBtn.addEventListener("click", () => toggleSection(toggleChatsBtn, "chatSessionList"));
-      }
-      if (toggleHistoryBtn) {
-        toggleHistoryBtn.addEventListener("click", () => toggleSection(toggleHistoryBtn, "historyList"));
-      }
-
-      // Load sidebar data
+      // 5. Load sidebar data (Async)
       async function loadSidebarData() {
-        if (!'<%= currentUser %>') return; // Don't fetch if not logged in
+        // SAFE CHECK: Only fetch if user is logged in
+        <% if (!currentUser) { %>
+           // User not logged in, update UI to show empty/login state
+           const chatList = document.getElementById("chatSessionList");
+           if(chatList) chatList.innerHTML = "<li class='p-2 text-xs text-chatgpt-subtle'>Login to see chats</li>";
+           
+           const histList = document.getElementById("historyList");
+           if(histList) histList.innerHTML = "<li class='p-2 text-xs text-chatgpt-subtle'>Login to see history</li>";
+           return; 
+        <% } %>
 
         try {
-          const chatRes = await fetch("/chat/list");
-          const chatData = await chatRes.json();
           const chatList = document.getElementById("chatSessionList");
-          if(chatList) {
-             chatList.innerHTML = "";
-             if (!chatData.sessions || chatData.sessions.length === 0) {
-               chatList.innerHTML = "<li class='p-2 text-xs text-chatgpt-subtle'>No chats yet</li>";
-             } else {
-               chatData.sessions.forEach((c) => {
-                 const li = document.createElement("li");
-                 li.innerHTML = `<a href="/chat/${c._id}" class="sidebar-link"><i class="fa-regular fa-message mr-1"></i><span class="sidebar-label-text">${c.title}</span></a>`;
-                 chatList.appendChild(li);
-               });
-             }
-          }
-          
-          const histRes = await fetch("/api/history-list");
-          const histData = await histRes.json();
           const histList = document.getElementById("historyList");
-          if(histList) {
-            histList.innerHTML = "";
-            if (!histData.items || histData.items.length === 0) {
-              histList.innerHTML = "<li class='p-2 text-xs text-chatgpt-subtle'>No history yet</li>";
-            } else {
-              histData.items.forEach((h) => {
-                const li = document.createElement("li");
-                li.innerHTML = `<a href="/history/${h._id}" class="sidebar-link"><i class="fa-regular fa-note-sticky mr-1"></i><span class="sidebar-label-text">${h.topic}</span></a>`;
-                histList.appendChild(li);
-              });
+
+          // Load Chats
+          const chatRes = await fetch("/chat/list");
+          if (chatRes.ok) {
+            const chatData = await chatRes.json();
+            if(chatList) {
+               chatList.innerHTML = "";
+               if (!chatData.sessions || chatData.sessions.length === 0) {
+                 chatList.innerHTML = "<li class='p-2 text-xs text-chatgpt-subtle'>No chats yet</li>";
+               } else {
+                 chatData.sessions.forEach((c) => {
+                   const li = document.createElement("li");
+                   li.innerHTML = `<a href="/chat/${c._id}" class="sidebar-link"><i class="fa-regular fa-message mr-1"></i><span class="sidebar-label-text">${c.title}</span></a>`;
+                   chatList.appendChild(li);
+                 });
+               }
+            }
+          }
+
+          // Load History
+          const histRes = await fetch("/api/history-list");
+          if (histRes.ok) {
+            const histData = await histRes.json();
+            if(histList) {
+              histList.innerHTML = "";
+              if (!histData.items || histData.items.length === 0) {
+                histList.innerHTML = "<li class='p-2 text-xs text-chatgpt-subtle'>No history yet</li>";
+              } else {
+                histData.items.forEach((h) => {
+                  const li = document.createElement("li");
+                  li.innerHTML = `<a href="/history/${h._id}" class="sidebar-link"><i class="fa-regular fa-note-sticky mr-1"></i><span class="sidebar-label-text">${h.topic}</span></a>`;
+                  histList.appendChild(li);
+                });
+              }
             }
           }
         } catch (err) {
           console.error("Sidebar load error:", err);
         }
       }
+      
+      // Run it
       loadSidebarData();
       
-      const newChatBtnSidebar = document.getElementById("newChatBtnSidebar");
-      if (newChatBtnSidebar) {
-        newChatBtnSidebar.addEventListener("click", async (e) => {
+      // 6. New Chat Button
+      const newChatBtn = document.getElementById("newChatBtnSidebar");
+      if (newChatBtn) {
+        newChatBtn.addEventListener("click", async (e) => {
           e.preventDefault();
           try {
             const res = await fetch("/chat/new", { method: "POST" });
             const data = await res.json();
-            if (data.success) {
-              window.location.href = "/chat/" + data.sessionId;
-            }
+            if (data.success) window.location.href = "/chat/" + data.sessionId;
           } catch (err) {
             console.error("New chat error:", err);
           }
