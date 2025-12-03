@@ -64,11 +64,15 @@
   </script>
   <% } %>
 
-  <% if (!record.diagram) { %>
-    <button id="generateDiagramBtn" onclick="generateDiagramHistory('<%= record._id %>')" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 mt-4 inline-block">
-      <i class="fas fa-project-diagram"></i> Generate Mind Map
-    </button>
-  <% } %>
+  <!-- Mind Map Section -->
+  <!-- FIX: Removed the 'if (!record.diagram)' check so the button is always visible for regeneration -->
+  <button 
+    id="generateDiagramBtn" 
+    onclick="generateDiagramHistory('<%= record._id %>')" 
+    class="bg-orange-500 text-black px-4 py-2 rounded-lg hover:bg-orange-600 mt-4 inline-block"
+  >
+    <i class="fas fa-project-diagram"></i> <%= record.diagram ? 'Regenerate Mind Map' : 'Generate Mind Map' %>
+  </button>
     
   <div
     id="diagramWrapper"
@@ -81,6 +85,7 @@
       <button id="fullScreenBtn" class="mind-btn">⛶</button>
     </div>
     <div id="mindmapContainer" class="w-full h-72 overflow-hidden">
+      <!-- Ensure 'mermaid' class is present -->
       <div id="mindmapDiagram" class="mermaid">
         <%= record.diagram || '' %>
       </div>
@@ -110,6 +115,7 @@
   </div>
 
   <br /><br />
+  <!-- ... existing regen section ... -->
   <label>Select Model:</label>
   <select id="regenModelSelect" class="model-dropdown">
     <option
@@ -192,3 +198,42 @@
     <div id="chatStatus" class="mt-2 text-sm text-gray-600"></div>
   </div>
 </div>
+
+<script>
+  // Function to handle Mind Map Generation
+  async function generateDiagramHistory(id) {
+    const btn = document.getElementById("generateDiagramBtn");
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    
+    try {
+      const res = await fetch(`/api/diagram/${id}`);
+      const data = await res.json();
+      if (data.success) {
+         const diagramDiv = document.getElementById("mindmapDiagram");
+         diagramDiv.textContent = data.diagram;
+         // Reset mermaid attribute so it can re-render if needed
+         diagramDiv.removeAttribute("data-processed"); 
+         
+         document.getElementById("diagramWrapper").classList.remove("hidden");
+         
+         // Trigger Mermaid Render
+         if (window.mermaid) {
+            window.mermaid.init(undefined, document.getElementById("mindmapDiagram"));
+         }
+         
+         btn.innerHTML = '<i class="fas fa-project-diagram"></i> Regenerate Mind Map';
+      } else {
+         alert("Error generating diagram: " + data.error);
+         btn.innerHTML = originalText;
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Network Error");
+      btn.innerHTML = originalText;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
