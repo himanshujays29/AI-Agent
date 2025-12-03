@@ -1,13 +1,12 @@
-import { marked } from "marked";
-import hljs from "highlight.js";
 
-marked.setOptions({
-  highlight: function(code, lang) {
-    if (hljs.getLanguage(lang)) {
-      return hljs.highlight(code, { language: lang }).value;
-    }
-    return hljs.highlightAuto(code).value;
-  }
-});
-
-export default marked;
+/**
+ * Utility to clean markdown characters for plain text formats (like PDF)
+ */
+export const cleanMarkdownForPdf = (markdown) => {
+  if (!markdown) return "";
+  return markdown
+    .replace(/[*#`]/g, "") // Remove bold, headers, code ticks
+    .replace(/^- /gm, "• ") // Replace list hyphens with bullets
+    .replace(/^\s*\n/gm, "\n") // Remove extra whitespace lines
+    .trim();
+};

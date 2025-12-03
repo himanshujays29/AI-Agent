@@ -26,11 +26,10 @@
   </div>
 
   <!-- Chat Tutor -->
- 
 
   <a
     id="generateQuizHistory"
-    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-4 inline-block"
+    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-4 inline-block cursor-pointer"
   >
     🎯 Generate Quiz for this topic
   </a>
@@ -49,7 +48,7 @@
 
   <a
     id="generateFlashcardsHistory"
-    class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 mt-4 inline-block"
+    class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 mt-4 inline-block cursor-pointer"
   >
     📘 Generate Flashcards
   </a>
@@ -66,10 +65,10 @@
   <% } %>
 
   <% if (!record.diagram) { %>
-    <button id="generateDiagramBtn" onclick="generateDiagram('<%= record._id %>')" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 mt-4 inline-block">
+    <button id="generateDiagramBtn" onclick="generateDiagramHistory('<%= record._id %>')" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 mt-4 inline-block">
       <i class="fas fa-project-diagram"></i> Generate Mind Map
     </button>
-    <% } %>
+  <% } %>
     
   <div
     id="diagramWrapper"
@@ -93,12 +92,22 @@
   </script>
   <% } %>
 
-  <a
-    href="/api/pdf/<%= record._id %>"
-    class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 inline-block mt-4"
-  >
-    📄 Export as PDF
-  </a>
+  <!-- EXPORT BUTTONS -->
+  <div class="mt-4 flex gap-2 flex-wrap">
+    <a
+      href="/api/pdf/<%= record._id %>"
+      class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 inline-block"
+    >
+      <i class="fas fa-file-pdf"></i> Export as PDF
+    </a>
+
+    <a
+      href="/api/md/<%= record._id %>"
+      class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 inline-block"
+    >
+      <i class="fab fa-markdown"></i> Download Markdown
+    </a>
+  </div>
 
   <br /><br />
   <label>Select Model:</label>
@@ -145,13 +154,13 @@
   </a>
 
   <div style="margin-top: 30px">
-    <form action="/history/delete/<%= record._id %>" method="POST">
+    <form action="/history/delete/<%= record._id %>" method="POST" onsubmit="return confirm('Are you sure?');">
       <button class="delete-detail-btn">
         <i class="fas fa-trash"></i> Delete This History
       </button>
     </form>
   </div>
-   <div id="chatContainer" class="bg-gray-100 p-4 rounded-lg shadow mb-6">
+   <div id="chatContainer" class="bg-gray-100 p-4 rounded-lg shadow mb-6 mt-6">
     <h2 class="text-2xl font-semibold mb-4 text-green-700">💬 AI Study Tutor</h2>
     <div
       id="chatHistory"

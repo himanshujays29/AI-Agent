@@ -7,13 +7,7 @@ import { diagramAgent } from "../agents/diagramAgent.js";
 
 import History from "../models/History.js";
 import PDFDocument from "pdfkit";
-
-const cleanMarkdownForPdf = (markdown) => {
-  return markdown
-    .replace(/[*#`]/g, "")
-    .replace(/^- /gm, "")
-    .replace(/^\s*\n/gm, "\n");
-};
+import { cleanMarkdownForPdf } from "../utils/markdown.js"; // Import the utility
 
 export const runApi = async (req, res) => {
   const { topic, model } = req.body;
@@ -22,35 +16,44 @@ export const runApi = async (req, res) => {
   const steps = [];
   const pushProgress = (msg) => steps.push(msg);
 
-  const { research, summary } = await runExamWorkflow(
-    topic,
-    pushProgress,
-    model
-  );
+  try {
+    const { research, summary } = await runExamWorkflow(
+      topic,
+      pushProgress,
+      model
+    );
 
-  const record = await History.create({
-    topic,
-    research,
-    summary,
-    model,
-    owner: req.user._id,
-  });
+    const record = await History.create({
+      topic,
+      research,
+      summary,
+      model,
+      owner: req.user._id,
+    });
 
-  res.json({ success: true, steps, research, summary, id: record._id });
+    res.json({ success: true, steps, research, summary, id: record._id });
+  } catch (error) {
+    console.error("API Run Error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 };
 
 export const generateQuiz = async (req, res) => {
-  const record = await History.findOne({
-    _id: req.params.id,
-    owner: req.user._id,
-  });
-  if (!record) return res.status(404).json({ error: "Record not found" });
+  try {
+    const record = await History.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
+    if (!record) return res.status(404).json({ error: "Record not found" });
 
-  const quiz = await quizAgent(record.topic, record.model);
-  record.quiz = quiz;
-  await record.save();
+    const quiz = await quizAgent(record.topic, record.model);
+    record.quiz = quiz;
+    await record.save();
 
-  res.json({ success: true, quiz });
+    res.json({ success: true, quiz });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export const handleChat = async (req, res) => {
@@ -82,80 +85,103 @@ export const handleChat = async (req, res) => {
 };
 
 export const exportHistory = async (req, res) => {
-  const record = await History.findOne({
-    _id: req.params.id,
-    owner: req.user._id,
-  });
-  if (!record) return res.status(404).send("Record not found");
+  try {
+    const record = await History.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
+    if (!record) return res.status(404).send("Record not found");
 
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="${record.topic.replace(/ /g, "_")}.pdf"`
-  );
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${record.topic.replace(/ /g, "_")}.pdf"`
+    );
 
-  const doc = new PDFDocument({
-    size: "A4",
-    margin: 40,
-    bufferPages: true,
-  });
+    const doc = new PDFDocument({
+      size: "A4",
+      margin: 40,
+      bufferPages: true,
+    });
 
-  doc.pipe(res);
+    doc.pipe(res);
 
-  doc.fontSize(22).fillColor("#000").text(record.topic, {
-    underline: true,
-    align: "center",
-  });
-  doc.moveDown();
+    doc.fontSize(22).fillColor("#000").text(record.topic, {
+      underline: true,
+      align: "center",
+    });
+    doc.moveDown();
 
-  doc.fontSize(10).fillColor("#333").text(
-    `Generated on: ${record.createdAt.toDateString()}`,
-    {
-      align: "left",
+    doc.fontSize(10).fillColor("#333").text(
+      `Generated on: ${record.createdAt.toDateString()}`,
+      { align: "left" }
+    );
+    doc.moveDown();
+
+    doc.fontSize(16).fillColor("#000").text("Research", { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(12).fillColor("#333").text(cleanMarkdownForPdf(record.research));
+
+    doc.addPage();
+    doc.fontSize(16).fillColor("#000").text("Summary", { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(12).fillColor("#333").text(cleanMarkdownForPdf(record.summary));
+
+    if (record.quiz) {
+      doc.addPage();
+      doc.fontSize(16).fillColor("#000").text("Quiz", { underline: true });
+      doc.moveDown(0.5);
+      doc.fontSize(12).fillColor("#333").text(cleanMarkdownForPdf(record.quiz));
     }
-  );
-  doc.moveDown();
 
-  doc.fontSize(16).fillColor("#000").text("Research", { underline: true });
-  doc.moveDown(0.5);
-  doc
-    .fontSize(12)
-    .fillColor("#333")
-    .text(cleanMarkdownForPdf(record.research), { align: "left" });
+    if (record.flashcards) {
+      doc.addPage();
+      doc.fontSize(16).fillColor("#000").text("Flashcards", { underline: true });
+      doc.moveDown(0.5);
+      doc.fontSize(12).fillColor("#333").text(cleanMarkdownForPdf(record.flashcards));
+    }
 
-  doc.addPage();
-
-  doc.fontSize(16).fillColor("#000").text("Summary", { underline: true });
-  doc.moveDown(0.5);
-  doc
-    .fontSize(12)
-    .fillColor("#333")
-    .text(cleanMarkdownForPdf(record.summary), { align: "left" });
-
-  if (record.quiz) {
-    doc.addPage();
-    doc.fontSize(16).fillColor("#000").text("Quiz", { underline: true });
-    doc.moveDown(0.5);
-    doc
-      .fontSize(12)
-      .fillColor("#333")
-      .text(cleanMarkdownForPdf(record.quiz), { align: "left" });
+    doc.end();
+  } catch (error) {
+    console.error("PDF Export Error:", error);
+    res.status(500).send("Error exporting PDF");
   }
+};
 
-  if (record.flashcards) {
-    doc.addPage();
-    doc
-      .fontSize(16)
-      .fillColor("#000")
-      .text("Flashcards", { underline: true });
-    doc.moveDown(0.5);
-    doc
-      .fontSize(12)
-      .fillColor("#333")
-      .text(cleanMarkdownForPdf(record.flashcards), { align: "left" });
+// NEW FEATURE: Download as Markdown
+export const exportMarkdown = async (req, res) => {
+  try {
+    const record = await History.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
+    if (!record) return res.status(404).send("Record not found");
+
+    const content = `
+# ${record.topic}
+_Generated on: ${record.createdAt.toDateString()}_
+
+## 🔍 Research
+${record.research}
+
+## 🧠 Summary
+${record.summary}
+
+${record.quiz ? `## 🎯 Quiz\n${record.quiz}` : ""}
+
+${record.flashcards ? `## 📘 Flashcards\n${record.flashcards}` : ""}
+`.trim();
+
+    res.setHeader("Content-Type", "text/markdown");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${record.topic.replace(/ /g, "_")}.md"`
+    );
+    res.send(content);
+  } catch (error) {
+    console.error("Markdown Export Error:", error);
+    res.status(500).send("Error exporting Markdown");
   }
-
-  doc.end();
 };
 
 export const regenerateNotes = async (req, res) => {
@@ -173,7 +199,7 @@ export const regenerateNotes = async (req, res) => {
     record.versions.push({
       research: record.research,
       summary: record.summary,
-      model: selectedModel,
+      model: record.model, // save previous model
       regeneratedAt: new Date(),
     });
 
@@ -223,10 +249,11 @@ export const generateFlashcards = async (req, res) => {
 export const generateDiagram = async (req, res) => {
   const record = await History.findById(req.params.id);
   if (!record) return res.status(404).json({ error: "Record not found" });
-  
-  // Security Check
+
   if (!record.owner.equals(req.user._id)) {
-    return res.status(403).json({ error: "Unauthorized access to this record" });
+    return res
+      .status(403)
+      .json({ error: "Unauthorized access to this record" });
   }
 
   try {
@@ -239,11 +266,6 @@ export const generateDiagram = async (req, res) => {
   }
 };
 
-
-/**
- * Sidebar helper: list history items for current user
- * (used to show "Study History" section in sidebar).
- */
 export const getHistoryList = async (req, res) => {
   const items = await History.find({ owner: req.user._id })
     .sort({ createdAt: -1 })
@@ -251,4 +273,3 @@ export const getHistoryList = async (req, res) => {
 
   res.json({ success: true, items });
 };
-
