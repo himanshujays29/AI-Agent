@@ -19,7 +19,7 @@
 /* Dark mode variables */
 body.dark {
   --bg-body: #020617;
-  --text-main: #e5e7eb;
+  --text-main: #f3f4f6; 
   --text-subtle: #9ca3af;
 
   --sidebar-bg: #020617;
