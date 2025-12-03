@@ -7,6 +7,7 @@ const historySchema = new mongoose.Schema(
     research: String,
     summary: String,
     quiz: { type: String, default: "" },
+    diagram: { type: String, default: "" },
     model: { type: String, default: "gemini-2.5-flash-lite" },
     versions: [
       {

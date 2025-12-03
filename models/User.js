@@ -1,15 +1,25 @@
-// models/User.js
 import mongoose from "mongoose";
-import passportLocalMongoosePkg from "passport-local-mongoose";
-
-const passportLocalMongoose =
-  passportLocalMongoosePkg?.default ?? passportLocalMongoosePkg;
 
 const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true }, // used for login
-  email: { type: String, required: true, unique: true },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+  // We store the Firebase UID to link MongoDB data to Firebase Auth
+  firebaseUid: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
-
-UserSchema.plugin(passportLocalMongoose);
 
 export default mongoose.model("User", UserSchema);

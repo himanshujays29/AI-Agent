@@ -1,18 +1,17 @@
-// routes/auth.js
 import express from "express";
 import * as authController from "../controllers/auth.js";
+import wrapAsync from "../utils/wrapAsync.js";
 
 const router = express.Router();
 
-// Register
+// Render Views
 router.get("/register", authController.renderRegister);
-router.post("/register", authController.registerUser);
-
-// Login
 router.get("/login", authController.renderLogin);
-router.post("/login", authController.loginUser);
 
-// Logout
+// Unified route for verifying the token sent by the client
+// This handles both Login and Registration verification
+router.post("/verify", wrapAsync(authController.verifySession));
+
 router.get("/logout", authController.logoutUser);
 
 export default router;

@@ -1,106 +1,57 @@
-// controllers/auth.js
 import User from "../models/User.js";
+import { getAuth } from "firebase-admin/auth";
 
-/**
- * GET /auth/register
- */
 export const renderRegister = (req, res) => {
   res.render("auth/register.ejs");
 };
 
-/**
- * POST /auth/register
- */
-export const registerUser = async (req, res, next) => {
-  try {
-    const { username, email, password } = req.body;
-
-    if (!username || !email || !password) {
-      return res.status(400).send("All fields are required.");
-    }
-
-    const user = new User({ username, email });
-
-    // passport-local-mongoose helper
-    const registeredUser = await User.register(user, password);
-
-    console.log("✅ Registered user:", registeredUser.username);
-
-    // Auto-login after registration
-    req.login(registeredUser, (err) => {
-      if (err) {
-        console.error("Login after register error:", err);
-        return next(err);
-      }
-      console.log("✅ Auto-login after register OK, user:", req.user?.username);
-      return res.redirect("/");
-    });
-  } catch (err) {
-    console.error("Register error:", err);
-    return res.status(500).send("Registration failed: " + err.message);
-  }
-};
-
-/**
- * GET /auth/login
- */
 export const renderLogin = (req, res) => {
   res.render("auth/login.ejs");
 };
 
-/**
- * POST /auth/login
- * Manual authentication using User.authenticate()
- */
-export const loginUser = (req, res, next) => {
-  console.log("🔐 loginUser called with body:", req.body);
+// Handle Login/Register via Token Verification
+export const verifySession = async (req, res) => {
+  const { idToken, username } = req.body;
 
-  const { username, password } = req.body;
-  const authenticate = User.authenticate(); // From passport-local-mongoose
+  if (!idToken) {
+    return res.status(400).json({ error: "No token provided" });
+  }
 
-  authenticate(username, password, (err, user, info) => {
-    console.log("📌 AUTH CALLBACK REACHED");
-    console.log("   err  =", err);
-    console.log("   user =", user);
-    console.log("   info =", info);
+  try {
+    // 1. Verify Firebase Token using Admin SDK
+    const decodedToken = await getAuth().verifyIdToken(idToken);
+    const { uid, email } = decodedToken;
 
-    if (err) {
-      console.log("❌ Error during authentication:", err);
-      return next(err);
-    }
+    // 2. Find or Create User in MongoDB
+    let user = await User.findOne({ firebaseUid: uid });
 
     if (!user) {
-      console.log("❌ User not found or password invalid");
-      return res.status(401).send(info?.message || "Invalid username/password");
+      // Logic for new user (Registration)
+      console.log("🆕 Creating new user for Firebase UID:", uid);
+      user = new User({
+        email,
+        firebaseUid: uid,
+        username: username || email.split("@")[0], // Fallback username
+      });
+      await user.save();
     }
 
-    console.log("✅ User authenticated:", user.username);
+    // 3. Create Session
+    req.session.userId = user._id;
+    await req.session.save();
 
-    req.login(user, (err2) => {
-      console.log("📌 INSIDE req.login callback");
-      console.log("   err2 =", err2);
+    console.log(`✅ Logged in as: ${user.username}`);
+    return res.json({ success: true, redirect: "/" });
 
-      if (err2) {
-        console.log("❌ Error in req.login:", err2);
-        return next(err2);
-      }
-
-      console.log("🎉 LOGIN SUCCESS! req.user =", req.user);
-      return res.redirect("/");
-    });
-  });
+  } catch (error) {
+    console.error("Verify Session Error:", error);
+    return res.status(401).json({ error: "Invalid token or authentication failed" });
+  }
 };
 
-
-/**
- * GET /auth/logout
- */
-export const logoutUser = (req, res, next) => {
-  req.logout(function (err) {
-    if (err) {
-      console.error("Logout error:", err);
-      return next(err);
-    }
+export const logoutUser = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) console.error("Logout error:", err);
     res.redirect("/auth/login");
   });
 };

@@ -1,4 +1,5 @@
 // controllers/chat.js
+import { marked } from "marked";
 import ChatSession from "../models/ChatSession.js";
 import { chatAgent } from "../agents/chatAgent.js";
 
@@ -41,7 +42,7 @@ export const loadChatSession = async (req, res) => {
 
   if (!chat) return res.status(404).send("Chat not found");
 
-  res.render("chat/chat.ejs", { chat });
+  res.render("chat/chat.ejs", { chat, marked });
 };
 
 export const sendMessage = async (req, res) => {

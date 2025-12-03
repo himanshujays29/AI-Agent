@@ -6,7 +6,7 @@
     <% chat.messages.forEach(msg => { %>
       <div class="my-2 flex <%= msg.role === 'user' ? 'justify-end' : 'justify-start' %>">
         <div class="p-3 max-w-xs rounded-lg <%= msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200' %>">
-          <%= msg.text %>
+          <%- marked.parse(msg.text) %>
         </div>
       </div>
     <% }) %>
