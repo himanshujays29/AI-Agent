@@ -67,6 +67,10 @@ body {
   min-height: 100vh;
 }
 
+.hide{
+  display: none !important;
+}
+
 /* Fixed sidebar */
 .sidebar {
   position: fixed;
@@ -440,4 +444,12 @@ input:checked + .slider:before {
 .mindmap-scale {
   transform-origin: center center;
   transition: transform 0.2s ease-out;
+}
+
+
+.backbtn{
+  color: white !important;
+}
+.backbtn:hover{
+  text-decoration: none !important;
 }
