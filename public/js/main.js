@@ -51,7 +51,7 @@ if (form) {
       if (quizBtn) {
         quizBtn.classList.remove("hidden");
         quizBtn.onclick = async () => {
-          quizBtn.innerText = "⏳ Generating quiz...";
+          quizBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
           const resQuiz = await fetch(`/api/quiz/${data.id}`);
           const quizData = await resQuiz.json();
 
@@ -82,7 +82,7 @@ if (form) {
       if (flashBtn) {
         flashBtn.classList.remove("hidden");
         flashBtn.onclick = async () => {
-          flashBtn.innerText = "⏳ Generating Flashcards...";
+          flashBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
           const resF = await fetch(`/api/flashcards/${data.id}`);
           const fData = await resF.json();
 

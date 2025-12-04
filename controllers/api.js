@@ -100,45 +100,66 @@ export const exportHistory = async (req, res) => {
 
     const doc = new PDFDocument({
       size: "A4",
-      margin: 40,
+      margin: 50,
       bufferPages: true,
     });
 
     doc.pipe(res);
 
-    doc.fontSize(22).fillColor("#000").text(record.topic, {
-      underline: true,
-      align: "center",
-    });
-    doc.moveDown();
+    // --- PDF Styles ---
+    const addTitle = (text) => {
+      doc.moveDown(1);
+      doc.fontSize(20).fillColor("#000").text(text, {
+        underline: true,
+        align: "left"
+      });
+      doc.moveDown(0.8);
+    };
 
-    doc.fontSize(10).fillColor("#333").text(
-      `Generated on: ${record.createdAt.toDateString()}`,
-      { align: "left" }
-    );
-    doc.moveDown();
+    const addBody = (text) => {
+      doc.fontSize(12).fillColor("#333");
+      const cleaned = cleanMarkdownForPdf(text)
+        .replace(/\n\s*\n/g, "\n\n") // fix double spacing
+        .replace(/✔/g, "•")          // bullet styling
+        .replace(/\*\*(.*?)\*\*/g, "$1"); // remove Markdown bold
+      doc.text(cleaned, { lineGap: 4 });
+      doc.moveDown(1);
+    };
 
-    doc.fontSize(16).fillColor("#000").text("Research", { underline: true });
-    doc.moveDown(0.5);
-    doc.fontSize(12).fillColor("#333").text(cleanMarkdownForPdf(record.research));
+    // --- HEADER ---
+    doc
+      .fontSize(24)
+      .fillColor("#000")
+      .text(record.topic, { align: "center", underline: true });
+
+    doc.moveDown();
+    doc
+      .fontSize(11)
+      .fillColor("#666")
+      .text(`Generated on: ${record.createdAt.toDateString()}`, {
+        align: "left",
+      });
+
+    doc.moveDown(1.5);
+
+    // --- SECTIONS ---
+    addTitle("Research");
+    addBody(record.research);
 
     doc.addPage();
-    doc.fontSize(16).fillColor("#000").text("Summary", { underline: true });
-    doc.moveDown(0.5);
-    doc.fontSize(12).fillColor("#333").text(cleanMarkdownForPdf(record.summary));
+    addTitle("Summary");
+    addBody(record.summary);
 
     if (record.quiz) {
       doc.addPage();
-      doc.fontSize(16).fillColor("#000").text("Quiz", { underline: true });
-      doc.moveDown(0.5);
-      doc.fontSize(12).fillColor("#333").text(cleanMarkdownForPdf(record.quiz));
+      addTitle("Quiz");
+      addBody(record.quiz);
     }
 
     if (record.flashcards) {
       doc.addPage();
-      doc.fontSize(16).fillColor("#000").text("Flashcards", { underline: true });
-      doc.moveDown(0.5);
-      doc.fontSize(12).fillColor("#333").text(cleanMarkdownForPdf(record.flashcards));
+      addTitle("Flashcards");
+      addBody(record.flashcards);
     }
 
     doc.end();

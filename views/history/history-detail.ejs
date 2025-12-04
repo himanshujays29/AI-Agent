@@ -30,12 +30,7 @@
 
   <!-- Chat Tutor -->
 
-  <a
-    id="generateQuizHistory"
-    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-4 inline-block cursor-pointer"
-  >
-    🎯 Generate Quiz for this topic
-  </a>
+  
 
   <div
     id="quizBox"
@@ -50,12 +45,7 @@
   </script>
   <% } %>
 
-  <a
-    id="generateFlashcardsHistory"
-    class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 mt-4 inline-block cursor-pointer"
-  >
-    📘 Generate Flashcards
-  </a>
+  
   <div
     id="flashcardBox"
     class="hidden markdown-body card mt-4"
@@ -70,13 +60,7 @@
   <% } %>
 
   <!-- Mind Map Section -->
-  <button 
-    id="generateDiagramBtn" 
-    onclick="generateDiagramHistory('<%= record._id %>')" 
-    class="bg-orange-500 text-black px-4 py-2 rounded-lg hover:bg-orange-600 mt-4 inline-block"
-  >
-    <i class="fas fa-project-diagram"></i> <%= record.diagram ? 'Regenerate Mind Map' : 'Generate Mind Map' %>
-  </button>
+  
     
   <div
     id="diagramWrapper"
@@ -105,6 +89,26 @@
     });
   </script>
   <% } %>
+
+  <a
+    id="generateQuizHistory"
+    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-4 inline-block cursor-pointer"
+  >
+    🎯 Generate Quiz for this topic
+  </a>
+<a
+    id="generateFlashcardsHistory"
+    class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 mt-4 inline-block cursor-pointer"
+  >
+    📘 Generate Flashcards
+  </a>
+  <button 
+    id="generateDiagramBtn" 
+    onclick="generateDiagramHistory('<%= record._id %>')" 
+    class="bg-orange-500 text-black px-4 py-2 rounded-lg hover:bg-orange-600 mt-4 inline-block"
+  >
+    <i class="fas fa-project-diagram"></i> <%= record.diagram ? 'Regenerate Mind Map' : 'Generate Mind Map' %>
+  </button>
 
   <!-- EXPORT BUTTONS -->
   <div class="mt-4 flex gap-2 flex-wrap">

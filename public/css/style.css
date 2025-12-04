@@ -291,6 +291,15 @@ body.dark #mindmapContainer{
 
 }
 
+body.dark #generateDiagramBtn{
+  color: white;
+}
+
+#summryoutput, #quizOutput, #flashcardOutput{
+  margin-top: 20px !important;
+  border-radius: 0.75rem !important;
+}
+
 /* ====== BUTTONS ====== */
 .delete-btn i, .delete-all-btn i, .delete-detail-btn i {
   color: #ef4444;
@@ -410,3 +419,4 @@ body.dark #mindmapContainer{
 
 .backbtn{ color: white !important; }
 .backbtn:hover{ text-decoration: none !important; }
+

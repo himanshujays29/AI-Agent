@@ -39,44 +39,28 @@
       <!-- Markdown body with transparent background for dark mode -->
       <div id="research" class="prose markdown-body" style="background-color: transparent;"></div>
     </div>
-
+<hr>
     <div class="card">
-      <h2 class="text-2xl font-semibold mb-2">🧠 Summary</h2>
+      <h2 id="summryoutput" class="text-2xl font-semibold mb-2">🧠 Summary</h2>
       <!-- Markdown body with transparent background for dark mode -->
       <div id="summary" class="prose markdown-body" style="background-color: transparent;"></div>
     </div>
-
-    <button
-      id="generateQuizBtn"
-      class="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hidden"
-    >
-      🎯 Generate Quiz
-    </button>
+<hr>
 
     <div
       id="quizOutput"
       class="hidden card markdown-body mt-4"
       style="background-color: transparent;"
     ></div>
-
-    <button
-      id="generateFlashcardsBtn"
-      class="mt-4 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 hidden"
-    >
-      📘 Generate Flashcards
-    </button>
+<hr>
+    
     <div
       id="flashcardOutput"
       class="hidden card markdown-body mt-4"
       style="background-color: transparent;"
     ></div>
 
-    <button
-      id="generateDiagramBtn"
-      class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 hidden"
-    >
-      🧠 Generate Mind Map
-    </button>
+    
 
     <div
       id="diagramWrapper"
@@ -94,11 +78,33 @@
       </div>
     </div>
 
+
     <button
+      id="generateQuizBtn"
+      class="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hidden"
+    >
+      🎯 Generate Quiz
+    </button>
+     <button
+      id="generateFlashcardsBtn"
+      class="mt-4 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 hidden"
+    >
+      📘 Generate Flashcards
+    </button>
+
+     <button
       id="exportPdfBtn"
       class="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 hidden"
     >
       📄 Export Notes to PDF
     </button>
+   
+    <button
+      id="generateDiagramBtn"
+      class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 hidden"
+    >
+      🧠 Generate Mind Map
+    </button>
+
   </div>
 </div>
