@@ -99,7 +99,7 @@ if (form) {
       }
 
       // DIAGRAM button
-      if (diagramBtn) {
+       if (diagramBtn) {
         diagramBtn.classList.remove("hidden");
         diagramBtn.onclick = async () => {
           const btn = diagramBtn;
@@ -114,10 +114,26 @@ if (form) {
               btn.innerText = "🧠 Regenerate Mind Map";
               const wrapper = document.getElementById("diagramWrapper");
               const diagram = document.getElementById("mindmapDiagram");
-              diagram.textContent = resData.diagram;
+              
+              // FIX: Handle single-line mermaid output
+              let cleanDiagram = resData.diagram;
+              if (cleanDiagram.trim().startsWith('mindmap') && !cleanDiagram.includes('\n')) {
+                  cleanDiagram = cleanDiagram.replace('mindmap', 'mindmap\n');
+              }
+              
+              diagram.textContent = cleanDiagram;
+              diagram.removeAttribute("data-processed"); // Clear previous render state
+              
               wrapper.classList.remove("hidden");
-              mermaid.init(undefined, ".mermaid");
-              initMindmapControls();
+              
+              // Re-run mermaid init
+              if (window.mermaid) {
+                await window.mermaid.init(undefined, diagram);
+              }
+              
+              if (typeof initMindmapControls === 'function') {
+                initMindmapControls();
+              }
             } else {
               alert("Error generating diagram");
             }
@@ -293,11 +309,23 @@ if (generateDiagramHistoryBtn) {
 
     const wrapper = document.getElementById("diagramWrapper");
     const diagram = document.getElementById("mindmapDiagram");
-    diagram.textContent = data.diagram;
+    
+    // FIX: Handle single-line mermaid output here too
+    let cleanDiagram = data.diagram;
+    if (cleanDiagram.trim().startsWith('mindmap') && !cleanDiagram.includes('\n')) {
+        cleanDiagram = cleanDiagram.replace('mindmap', 'mindmap\n');
+    }
+    diagram.textContent = cleanDiagram;
+    diagram.removeAttribute("data-processed");
+
     wrapper.classList.remove("hidden");
 
-    mermaid.init(undefined, ".mermaid");
-    initMindmapControls();
+    if (window.mermaid) {
+       await window.mermaid.init(undefined, diagram);
+    }
+    if (typeof initMindmapControls === 'function') {
+       initMindmapControls();
+    }
 
     generateDiagramHistoryBtn.innerText = "🧠 Regenerate Mind Map";
   };

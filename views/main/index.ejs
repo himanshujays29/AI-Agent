@@ -9,7 +9,7 @@
       <label class="block mb-2 text-lg">Select Model:</label>
       <select
         id="model"
-        class="border border-gray-300 rounded-lg px-3 py-2 w-full mb-4"
+        class="model-dropdown w-full"
       >
         <option value="gemini-2.5-flash-lite" selected>
           Gemini 2.5 Flash Lite (Fast)
@@ -31,17 +31,19 @@
     </form>
   </div>
 
-  <div id="status" class="my-4 text-gray-700 text-sm"></div>
+  <div id="status" class="my-4 text-chatgpt-subtle text-sm"></div>
 
-  <div id="output" class="hidden markdown-body">
+  <div id="output" class="hidden">
     <div class="card">
       <h2 class="text-2xl font-semibold mb-2">🔍 Research</h2>
-      <div id="research" class="prose"></div>
+      <!-- Markdown body with transparent background for dark mode -->
+      <div id="research" class="prose markdown-body" style="background-color: transparent;"></div>
     </div>
 
     <div class="card">
       <h2 class="text-2xl font-semibold mb-2">🧠 Summary</h2>
-      <div id="summary" class="prose"></div>
+      <!-- Markdown body with transparent background for dark mode -->
+      <div id="summary" class="prose markdown-body" style="background-color: transparent;"></div>
     </div>
 
     <button
@@ -53,7 +55,8 @@
 
     <div
       id="quizOutput"
-      class="hidden bg-white p-4 rounded-lg shadow markdown-body mt-4"
+      class="hidden card markdown-body mt-4"
+      style="background-color: transparent;"
     ></div>
 
     <button
@@ -64,7 +67,8 @@
     </button>
     <div
       id="flashcardOutput"
-      class="hidden bg-white p-4 rounded-lg shadow markdown-body mt-4"
+      class="hidden card markdown-body mt-4"
+      style="background-color: transparent;"
     ></div>
 
     <button
@@ -76,7 +80,7 @@
 
     <div
       id="diagramWrapper"
-      class="hidden relative bg-white p-4 rounded-lg shadow mt-4"
+      class="hidden relative card mt-4"
     >
       <div class="absolute top-2 right-2 flex gap-2 z-20">
         <button id="zoomInBtn" class="mind-btn">+</button>
@@ -84,8 +88,9 @@
         <button id="resetZoomBtn" class="mind-btn">⟳</button>
         <button id="fullScreenBtn" class="mind-btn">⛶</button>
       </div>
-      <div id="mindmapContainer" class="w-full h-72 overflow-hidden">
-        <div id="mindmapDiagram" class="mermaid"></div>
+      <!-- Fixed container: bg-white for diagram visibility, pre-wrap for debugging raw text -->
+      <div id="mindmapContainer" class="w-full h-72 overflow-hidden bg-white rounded-lg">
+        <div id="mindmapDiagram" class="mermaid" style="white-space: pre-wrap;"></div>
       </div>
     </div>
 

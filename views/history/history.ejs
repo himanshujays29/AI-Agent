@@ -11,15 +11,17 @@
   </div>
 
   <% if (records.length === 0) { %>
-  <p class="text-gray-500 text-center">No study records found yet.</p>
+  <p class="text-chatgpt-subtle text-center">No study records found yet.</p>
   <% } else { %>
-  <ul class="bg-white rounded-lg shadow divide-y divide-gray-200">
+  <!-- Replaced bg-white with card class, removed default padding to keep list flush -->
+  <ul class="card p-0 overflow-hidden">
     <% records.forEach(r => { %>
-    <li class="p-4 hover:bg-gray-50 transition">
+    <!-- Added border-chatgpt-border for dark mode dividers and hover:bg-chatgpt-soft-hover -->
+    <li class="p-4 hover:bg-chatgpt-soft-hover transition border-b border-chatgpt-border last:border-0">
       <div class="flex justify-between items-center gap-3">
         <div>
           <h2 class="text-xl font-semibold"><%= r.topic %></h2>
-          <p class="text-sm text-gray-500"><%= r.createdAt.toDateString() %></p>
+          <p class="text-sm text-chatgpt-subtle"><%= r.createdAt.toDateString() %></p>
         </div>
 
         <a href="/history/<%= r._id %>" class="text-blue-600 hover:underline text-sm"
@@ -31,6 +33,7 @@
           method="POST"
           style="display: inline"
         >
+          <!-- model-dropdown-small is now styled in CSS for dark mode -->
           <select class="model-dropdown-small" id="model-<%= r._id %>">
             <option value="gemini-2.5-flash-lite">
               Gemini-2.5-Flash-Lite (Best)
@@ -39,9 +42,10 @@
           </select>
 
           <button
-            class="regen-list-btn"
+            class="cursor-pointer text-blue-600 hover:text-blue-800 transition"
             type="button"
             onclick="regenFromList('<%= r._id %>')"
+            title="Regenerate Notes"
           >
             <i class="fa-solid fa-rotate-right"></i>
             <i

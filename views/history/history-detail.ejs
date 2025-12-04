@@ -1,5 +1,6 @@
 <% layout('/layout/layout') -%>
-<div class="max-w-6xl py-10 markdown-body responce-container">
+<!-- Removed markdown-body from the parent container to fix dark mode background -->
+<div class="max-w-6xl py-10 responce-container">
   <a
     href="/history"
     class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-6 inline-block backbtn"
@@ -9,20 +10,22 @@
   <h1 class="text-3xl font-bold mb-4">
     <%= record.topic %>
   </h1>
-  <p class="text-sm text-gray-500 mb-6">
+  <p class="text-sm text-chatgpt-subtle mb-6">
     Generated: <%= record.createdAt.toDateString() %><br />
     Model:
     <strong class="text-blue-600"><%= record.model %></strong>
   </p>
 
-  <div class="bg-white p-4 rounded-lg shadow mb-6">
+  <div class="card mb-6">
     <h2 class="text-2xl font-semibold mb-2">🔍 Research</h2>
-    <div class="prose"><%- marked.parse(record.research) %></div>
+    <!-- Added markdown-body with transparent background -->
+    <div class="prose markdown-body" style="background-color: transparent;"><%- marked.parse(record.research) %></div>
   </div>
 
-  <div class="bg-white p-4 rounded-lg shadow mb-6">
+  <div class="card mb-6">
     <h2 class="text-2xl font-semibold mb-2">🧠 Summary</h2>
-    <div class="prose"><%- marked.parse(record.summary) %></div>
+    <!-- Added markdown-body with transparent background -->
+    <div class="prose markdown-body" style="background-color: transparent;"><%- marked.parse(record.summary) %></div>
   </div>
 
   <!-- Chat Tutor -->
@@ -36,7 +39,8 @@
 
   <div
     id="quizBox"
-    class="hidden markdown-body bg-white p-4 rounded-lg shadow mt-4"
+    class="hidden markdown-body card mt-4"
+    style="background-color: transparent;"
   >
     <%- record.quiz ? marked.parse(record.quiz) : '' %>
   </div>
@@ -54,7 +58,8 @@
   </a>
   <div
     id="flashcardBox"
-    class="hidden markdown-body bg-white p-4 rounded-lg shadow mt-4"
+    class="hidden markdown-body card mt-4"
+    style="background-color: transparent;"
   >
     <%- record.flashcards ? marked.parse(record.flashcards) : '' %>
   </div>
@@ -65,7 +70,6 @@
   <% } %>
 
   <!-- Mind Map Section -->
-  <!-- FIX: Removed the 'if (!record.diagram)' check so the button is always visible for regeneration -->
   <button 
     id="generateDiagramBtn" 
     onclick="generateDiagramHistory('<%= record._id %>')" 
@@ -76,7 +80,7 @@
     
   <div
     id="diagramWrapper"
-    class="hidden relative bg-white p-4 rounded-lg shadow mt-4"
+    class="hidden relative card mt-4"
   >
     <div class="absolute top-2 right-2 flex gap-2 z-20">
       <button id="zoomInBtn" class="mind-btn">+</button>
@@ -84,7 +88,8 @@
       <button id="resetZoomBtn" class="mind-btn">⟳</button>
       <button id="fullScreenBtn" class="mind-btn">⛶</button>
     </div>
-    <div id="mindmapContainer" class="w-full h-72 overflow-hidden">
+    <!-- Added bg-white to ensure mermaid diagram text (usually black) is visible in dark mode -->
+    <div id="mindmapContainer" class="w-full h-72 overflow-hidden rounded-lg mpcon">
       <!-- Ensure 'mermaid' class is present -->
       <div id="mindmapDiagram" class="mermaid">
         <%= record.diagram || '' %>
@@ -94,6 +99,10 @@
   <% if(record.diagram) { %>
   <script>
     document.getElementById("diagramWrapper").classList.remove("hidden");
+    // Init controls if diagram exists on load
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof initMindmapControls === 'function') initMindmapControls();
+    });
   </script>
   <% } %>
 
@@ -166,15 +175,19 @@
       </button>
     </form>
   </div>
-   <div id="chatContainer" class="bg-gray-100 p-4 rounded-lg shadow mb-6 mt-6">
+
+  <!-- Chat Tutor Container: Replaced bg-gray-100 with card/border setup -->
+  <div id="chatContainer" class="p-4 rounded-lg shadow mb-6 mt-6">
     <h2 class="text-2xl font-semibold mb-4 text-green-700">💬 AI Study Tutor</h2>
+    <!-- Replaced bg-white with card -->
     <div
       id="chatHistory"
-      class="space-y-4 h-64 overflow-y-auto p-2 bg-white rounded-lg mb-4 border border-gray-300"
+      class="space-y-4 h-64 overflow-y-auto p-2 card mb-4"
     >
       <div class="flex justify-start">
+        <!-- Removed text-gray-800 to allow CSS variable to work -->
         <div
-          class="bg-green-200 text-gray-800 p-3 rounded-xl rounded-bl-none max-w-xs"
+          class="bg-green-200 p-3 rounded-xl rounded-bl-none max-w-xs"
         >
           Hello! I'm your AI tutor for <strong><%= record.topic %></strong>. Ask
           me anything!
@@ -195,7 +208,7 @@
         <i class="fas fa-paper-plane"></i> Send
       </button>
     </div>
-    <div id="chatStatus" class="mt-2 text-sm text-gray-600"></div>
+    <div id="chatStatus" class="mt-2 text-sm text-chatgpt-subtle"></div>
   </div>
 </div>
 
@@ -221,6 +234,11 @@
          // Trigger Mermaid Render
          if (window.mermaid) {
             window.mermaid.init(undefined, document.getElementById("mindmapDiagram"));
+         }
+         
+         // Init controls for new diagram
+         if (typeof initMindmapControls === 'function') {
+            initMindmapControls();
          }
          
          btn.innerHTML = '<i class="fas fa-project-diagram"></i> Regenerate Mind Map';

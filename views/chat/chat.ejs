@@ -2,10 +2,12 @@
 <div class="max-w-3xl mx-auto p-6">
   <h1 class="text-2xl font-semibold mb-4"><%= chat.title %></h1>
 
-  <div id="chatMessages" class="bg-white p-4 rounded-lg shadow h-96 overflow-y-auto mb-4">
+  <!-- Replaced bg-white with card class for dark mode compatibility -->
+  <div id="chatMessages" class="card h-96 overflow-y-auto mb-4">
     <% chat.messages.forEach(msg => { %>
       <div class="my-2 flex <%= msg.role === 'user' ? 'justify-end' : 'justify-start' %>">
-        <div class="p-3 max-w-xs rounded-lg <%= msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200' %>">
+        <!-- Replaced hardcoded color classes with semantic user-msg and ai-msg classes defined in style.css -->
+        <div class="<%= msg.role === 'user' ? 'user-msg' : 'ai-msg' %>">
           <%- marked.parse(msg.text) %>
         </div>
       </div>
@@ -34,10 +36,9 @@
     wrap.className = "my-2 flex " + (role === "user" ? "justify-end" : "justify-start");
 
     const bubble = document.createElement("div");
-    bubble.className =
-      "p-3 max-w-xs rounded-lg " +
-      (role === "user" ? "bg-blue-600 text-white" : "bg-gray-200");
-    bubble.innerText = text;
+    // Updated to use semantic classes
+    bubble.className = (role === "user" ? "user-msg" : "ai-msg");
+    bubble.innerHTML = marked.parse(text); // Use marked for consistency if you have it available, or innerText if raw
 
     wrap.appendChild(bubble);
     msgBox.appendChild(wrap);
