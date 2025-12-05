@@ -24,7 +24,7 @@ if (form) {
       return;
     }
 
-    statusDiv.innerHTML = "⏳ Researching...";
+    statusDiv.innerHTML = 'Researching... <i class="fas fa-spinner fa-spin"></i>';
     output.classList.add("hidden");
 
     try {
@@ -51,7 +51,7 @@ if (form) {
       if (quizBtn) {
         quizBtn.classList.remove("hidden");
         quizBtn.onclick = async () => {
-          quizBtn.innerText = "⏳ Generating quiz...";
+          quizBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating quiz...';
           const resQuiz = await fetch(`/api/quiz/${data.id}`);
           const quizData = await resQuiz.json();
 
@@ -61,7 +61,7 @@ if (form) {
             return;
           }
 
-          quizBtn.innerText = "🎯 Generate Quiz Again";
+          quizBtn.innerHTML= '<i class="fa-solid fa-bullseye"></i> Generate Quiz Again';
           document.getElementById("quizOutput").innerHTML = marked.parse(
             quizData.quiz
           );
@@ -82,7 +82,7 @@ if (form) {
       if (flashBtn) {
         flashBtn.classList.remove("hidden");
         flashBtn.onclick = async () => {
-          flashBtn.innerText = "⏳ Generating Flashcards...";
+          flashBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Flashcards...';
           const resF = await fetch(`/api/flashcards/${data.id}`);
           const fData = await resF.json();
 
@@ -91,7 +91,7 @@ if (form) {
             return;
           }
 
-          flashBtn.innerText = "📘 Regenerate Flashcards";
+          flashBtn.innerHTML = '<i class="fa-regular fa-clone"></i> Regenerate Flashcards';
           const box = document.getElementById("flashcardOutput");
           box.innerHTML = marked.parse(fData.flashcards);
           box.classList.remove("hidden");
@@ -111,7 +111,7 @@ if (form) {
             const res = await fetch(`/api/diagram/${data.id}`);
             const resData = await res.json();
             if (resData.success) {
-              btn.innerText = "🧠 Regenerate Mind Map";
+              btn.innerHTML = '<i class="fa-solid fa-diagram-project"></i> Regenerate Mind Map';
               const wrapper = document.getElementById("diagramWrapper");
               const diagram = document.getElementById("mindmapDiagram");
               
@@ -240,7 +240,7 @@ const generateQuizHistoryBtn = document.getElementById("generateQuizHistory");
 if (generateQuizHistoryBtn) {
   generateQuizHistoryBtn.onclick = async () => {
     const btn = generateQuizHistoryBtn;
-    btn.innerText = "⏳ Generating quiz...";
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating quiz...';
 
     const recordIdMatch = window.location.pathname.match(
       /\/history\/([a-f\d]{24})/
@@ -280,12 +280,12 @@ if (generateFlashcardsHistoryBtn) {
     );
     const recordId = recordIdMatch ? recordIdMatch[1] : null;
 
-    generateFlashcardsHistoryBtn.innerText = "⏳ Generating...";
+    generateFlashcardsHistoryBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>  Generating...';
 
     const res = await fetch(`/api/flashcards/${recordId}`);
     const data = await res.json();
 
-    generateFlashcardsHistoryBtn.innerText = "📘 Regenerate Flashcards";
+    generateFlashcardsHistoryBtn.innerHTML = '<i class="fa-regular fa-clone"></i> Regenerate Flashcards';
 
     const box = document.getElementById("flashcardBox");
     box.innerHTML = marked.parse(data.flashcards);
@@ -302,7 +302,7 @@ if (generateDiagramHistoryBtn) {
     );
     const recordId = recordIdMatch ? recordIdMatch[1] : null;
 
-    generateDiagramHistoryBtn.innerText = "⏳ Generating...";
+    generateDiagramHistoryBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
 
     const res = await fetch(`/api/diagram/${recordId}`);
     const data = await res.json();
