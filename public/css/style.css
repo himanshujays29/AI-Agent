@@ -16,8 +16,9 @@
   --user-bg: #2563eb;
   
   --card-bg: #ffffff;
-  --input-bg: #ffffff;
-  --input-border: #e5e7eb;
+ --input-bg: #ffffff;
+  --input-border: #e5e5e5;
+  --shadow-float: 0 0 15px rgba(0,0,0,0.1);
 }
 
 /* Dark mode variables */
@@ -36,8 +37,9 @@ body.dark {
   --user-bg: #2563eb;
 
   --card-bg: #1e293b;
-  --input-bg: #0f172a;
-  --input-border: #334155;
+  --input-bg: #2f2f2f;
+  --input-border: #424242;
+  --shadow-float: 0 0 15px rgba(0,0,0,0.5);
 }
 
 /* ====== GLOBAL ====== */
@@ -250,6 +252,7 @@ body.dark #chatContainer {
 }
 
 #chatContainer{
+
   border-radius: 1rem;
   border: 1px solid rgba(148, 163, 184, 0.4);
   background: radial-gradient(circle at top left, #eef2ff 0, #ffffff 40%);
@@ -288,7 +291,18 @@ body.dark #quizBox{
 body.dark #mindmapContainer{
   background-color: var(--card-bg);
       border: 1px solid #334155;
+}
 
+.prose pre code{
+  color: white !important;
+}
+
+.compare-btn{
+  color: black !important;
+}
+
+.column-box pre code{
+  color: white !important;
 }
 
 body.dark #generateDiagramBtn{
@@ -406,6 +420,7 @@ body.dark #generateDiagramBtn{
 }
 
 #mindmapContainer {
+  border-radius: 0.75rem;
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -420,3 +435,152 @@ body.dark #generateDiagramBtn{
 .backbtn{ color: white !important; }
 .backbtn:hover{ text-decoration: none !important; }
 
+.input-area-container {
+    position: fixed;
+    bottom: 0;
+    left: var(--sidebar-width); /* Matches sidebar width */
+    right: 0;
+        padding: 1.5rem 2rem 0.3rem 2rem; /* Top Right Bottom Left */
+    background: linear-gradient(to top, var(--bg-body) 20%, transparent);
+    z-index: 20;
+    transition: left 0.3s ease;
+}
+body.sidebar-collapsed .input-area-container {
+    left: 0;
+}
+
+.input-box-wrapper {
+    max-width: 48rem; /* max-w-3xl */
+    margin: 0 auto;
+    position: relative;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1.5rem; /* Rounded pill shape */
+    box-shadow: var(--shadow-float);
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+}
+
+.input-top-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+.input-main-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+}
+
+.chat-input {
+    width: 100%;
+    background: transparent !important;
+    border: none !important;
+    resize: none;
+    height: 24px; /* Start height */
+    max-height: 200px;
+    padding: 0 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    outline: none !important;
+    box-shadow: none !important;
+}
+.chat-input:focus { outline: none; }
+
+.send-btn-float {
+    background: #111; /* Black send button like ChatGPT */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-bottom: 2px;
+}
+body.dark .send-btn-float { background: #fff; color: #000; }
+
+.send-btn-float:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.model-select-float {
+    background: transparent !important;
+    border: none !important;
+    font-size: 0.85rem;
+    color: var(--text-subtle) !important;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+}
+.model-select-float:hover { color: var(--text-main) !important; }
+
+.dropdown-menu{
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+/* ====== MINIMALIST BUTTONS (Action Bar) ====== */
+.action-buttons-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 1rem;
+    margin-bottom: 3rem; /* Space for fixed footer */
+}
+
+.minimal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-subtle);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.minimal-btn:hover {
+    background-color: var(--soft-bg-hover);
+    color: var(--text-main);
+    border-color: var(--text-subtle);
+}
+.minimal-btn i { font-size: 0.9rem; }
+
+.aiout{
+  color: var(--text-main) !important;
+  padding: 25px;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+}
+body.dark .aiout{
+  background-color: var(--card-bg) !important;
+  color: var(--text-main) !important;
+}
+
+body.dark .expbtn{
+  color: var(--text-subtle) !important; 
+}
+
+.debtn{
+  color: rgb(238, 71, 71) !important;
+  border: 1px solid rgb(233, 58, 58) !important ;
+}
+
+.debtn:hover{
+  background-color: rgb(255, 162, 162) !important;
+  border-color: rgb(233, 58, 58) !important ;
+  color: rgb(233, 58, 58) !important;
+}
