@@ -39,19 +39,26 @@ export const verifySession = async (req, res) => {
     // 3. Create Session
     req.session.userId = user._id;
     await req.session.save();
+    req.flash("success", `✅ Logged in as: ${user.username}`);
 
     console.log(`✅ Logged in as: ${user.username}`);
     return res.json({ success: true, redirect: "/" });
-
   } catch (error) {
     console.error("Verify Session Error:", error);
-    return res.status(401).json({ error: "Invalid token or authentication failed" });
+    req.flash("error", `Verify Session Error: ${error}`);
+    return res
+      .status(401)
+      .json({ error: "Invalid token or authentication failed" });
   }
 };
 
 export const logoutUser = (req, res) => {
   req.session.destroy((err) => {
-    if (err) console.error("Logout error:", err);
-    res.redirect("/auth/login");
+    if (err) {
+      req.flash("error", `Logout error: ${err}`);
+      console.error("Logout error:", err);
+    } else {
+      res.redirect("/auth/login");
+    }
   });
 };

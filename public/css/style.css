@@ -575,3 +575,22 @@ body.dark .expbtn{
   border-color: rgb(233, 58, 58) !important ;
   color: rgb(233, 58, 58) !important;
 }
+
+
+.sidebar-label-text{
+  overflow: hidden;
+  height: 20px;
+}
+
+.theambtn{
+  height: 25px !important;
+}
+
+.histrow{
+  overflow: hidden;
+    height: 35px;
+}
+
+#chatMessages{
+  height: 24rem !important;
+}

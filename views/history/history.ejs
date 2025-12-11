@@ -1,10 +1,11 @@
 <% layout('/layout/layout') -%>
-<div class="max-w-5xl mx-auto py-10">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">📜 Study History</h1>
+<div class="max-w-5xl mx-auto py-6 px-3 md:px-8">
+  <!-- Header: Stacks on mobile, Row on Desktop -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <h1 class="text-3xl font-bold text-center md:text-left">📜 Study History</h1>
     <a
       href="/"
-      class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+      class="minimal-btn"
     >
       ⬅ Back to Dashboard
     </a>
@@ -13,58 +14,69 @@
   <% if (records.length === 0) { %>
   <p class="text-chatgpt-subtle text-center">No study records found yet.</p>
   <% } else { %>
-  <!-- Replaced bg-white with card class, removed default padding to keep list flush -->
+  
   <ul class="card p-0 overflow-hidden">
     <% records.forEach(r => { %>
-    <!-- Added border-chatgpt-border for dark mode dividers and hover:bg-chatgpt-soft-hover -->
     <li class="p-4 hover:bg-chatgpt-soft-hover transition border-b border-chatgpt-border last:border-0">
-      <div class="flex justify-between items-center gap-3">
-        <div>
-          <h2 class="text-xl font-semibold"><%= r.topic %></h2>
+      
+      <!-- List Item: Column on Mobile, Row on Small Screens+ -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        
+        <!-- Topic & Date -->
+        <div class="w-full sm:w-auto">
+          <h2 class="text-xl font-semibold histrow"><%= r.topic %></h2>
           <p class="text-sm text-chatgpt-subtle"><%= r.createdAt.toDateString() %></p>
         </div>
 
-        <a href="/history/<%= r._id %>" class="text-blue-600 hover:underline text-sm"
-          >View</a
-        >
-
-        <form
-          action="/history/regenerate/<%= r._id %>"
-          method="POST"
-          style="display: inline"
-        >
-          <!-- model-dropdown-small is now styled in CSS for dark mode -->
-          <select class="model-dropdown-small" id="model-<%= r._id %>">
-            <option value="gemini-2.5-flash-lite">
-              Gemini-2.5-Flash-Lite (Best)
-            </option>
-            <option value="gemini-2.5-flash">Gemini-2.5-Flash</option>
-          </select>
-
-          <button
-            class="cursor-pointer text-blue-600 hover:text-blue-800 transition"
-            type="button"
-            onclick="regenFromList('<%= r._id %>')"
-            title="Regenerate Notes"
+        <!-- Action Buttons Group -->
+        <!-- Added w-full for mobile to space buttons out evenly or align them -->
+        <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0">
+          
+          <a href="/history/<%= r._id %>" class="text-blue-600 hover:underline text-sm font-medium px-2 py-1"
+            >View</a
           >
-            <i class="fa-solid fa-rotate-right"></i>
-            <i
-              class="fa-solid fa-spinner fa-spin"
-              id="spinner-<%= r._id %>"
-              style="font-size: 24px; color: #007bff; display: none"
-            ></i>
-          </button>
-        </form>
 
-        <form
-          action="/history/delete/<%= r._id %>"
-          method="POST"
-          style="display: inline"
-        >
-          <button class="delete-btn">
-            <i class="fas fa-trash"></i>
-          </button>
-        </form>
+          <div class="flex items-center gap-3">
+            <form
+              action="/history/regenerate/<%= r._id %>"
+              method="POST"
+              style="display: flex"
+            >
+              <select class="model-dropdown-small sm:inline-block" id="model-<%= r._id %>">
+                <option value="gemini-2.5-flash-lite">
+                   Flash-Lite
+                </option>
+                <option value="gemini-2.5-flash">Flash</option>
+              </select>
+
+              <button
+                class="cursor-pointer text-blue-600 hover:text-blue-800 transition px-2 py-1"
+                type="button"
+                onclick="regenFromList('<%= r._id %>')"
+                title="Regenerate Notes"
+              >
+                <i class="fa-solid fa-rotate-right"></i>
+                <i
+                  class="fa-solid fa-spinner fa-spin"
+                  id="spinner-<%= r._id %>"
+                  style="font-size: 18px; color: #007bff; display: none"
+                ></i>
+              </button>
+            </form>
+
+            <form
+              action="/history/delete/<%= r._id %>"
+              method="POST"
+              style="display: inline"
+              onsubmit="return confirm('Are you sure you want to delete this?');"
+            >
+              <button class="delete-btn px-2 py-1">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+
       </div>
     </li>
     <% }) %>

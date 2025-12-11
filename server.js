@@ -2,6 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import ejsMate from "ejs-mate";
 import dotenv from "dotenv";
+import ExpressError from "./utils/ExpressError.js";
+import flash from "connect-flash";
 import path from "path";
 import session from "express-session";
 import { fileURLToPath } from "url";
@@ -71,14 +73,13 @@ const sessionOptions = {
   },
 };
 app.use(session(sessionOptions));
+app.use(flash());
+
 
 // --- GLOBAL LOCALS & AUTH MIDDLEWARE ---
 app.use(async (req, res, next) => {
   res.locals.currentUser = null;
   res.locals.redirectUrl = req.get("referer") || "/";
-
-  // NEW: Pass Firebase Config from .env to all views securely
-  // This allows the frontend (client-side) to initialize Firebase
   res.locals.firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -88,7 +89,7 @@ app.use(async (req, res, next) => {
     appId: process.env.FIREBASE_APP_ID,
   };
 
-  // Custom Auth Logic (Replaces Passport)
+
   if (req.session.userId) {
     try {
       const user = await User.findById(req.session.userId);
@@ -105,6 +106,13 @@ app.use(async (req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+  next();
+});
+
 // Routes
 app.use("/auth", authRoutes);
 app.use("/api", apiRoutes);
@@ -117,6 +125,15 @@ app.get("/", isLoggedIn, async (req, res) => {
     .sort({ createdAt: -1 })
     .limit(10);
   res.render("main/index.ejs", { history });
+});
+
+app.all("*", (req, res, next) => {
+  next(new ExpressError(404, "Page not found!"));
+});
+
+app.use((err, req, res, next) => {
+  let { statusCode = 500, message = "Somthing Went Wrong!" } = err;
+  res.status(statusCode).render("includes/error.ejs", { message });
 });
 
 const PORT = process.env.PORT || 3000;

@@ -33,6 +33,7 @@ export const runApi = async (req, res) => {
 
     res.json({ success: true, steps, research, summary, id: record._id });
   } catch (error) {
+    req.flash("error", `API Run Error: ${error}`);
     console.error("API Run Error:", error);
     res.status(500).json({ success: false, error: error.message });
   }
@@ -79,6 +80,7 @@ export const handleChat = async (req, res) => {
 
     res.json({ success: true, response: responseText });
   } catch (err) {
+    req.flash("error", `Chat Error: ${err}`);
     console.error("Chat Error:", err);
     res.status(500).json({ error: "Failed to process chat request" });
   }
@@ -92,11 +94,17 @@ export const exportHistory = async (req, res) => {
     });
     if (!record) return res.status(404).send("Record not found");
 
+    // --- Ensure we don't send duplicate Content-Disposition ---
+    const filename = `${record.topic.replace(/ /g, "_")}.pdf`;
+    const existing = res.getHeader("Content-Disposition");
+    if (existing) {
+      console.warn("Removing duplicate Content-Disposition header:", existing);
+      res.removeHeader("Content-Disposition");
+    }
+
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${record.topic.replace(/ /g, "_")}.pdf"`
-    );
+    // Use attachment which sets Content-Disposition correctly
+    res.attachment(filename);
 
     const doc = new PDFDocument({
       size: "A4",
@@ -111,7 +119,7 @@ export const exportHistory = async (req, res) => {
       doc.moveDown(1);
       doc.fontSize(20).fillColor("#000").text(text, {
         underline: true,
-        align: "left"
+        align: "left",
       });
       doc.moveDown(0.8);
     };
@@ -120,7 +128,7 @@ export const exportHistory = async (req, res) => {
       doc.fontSize(12).fillColor("#333");
       const cleaned = cleanMarkdownForPdf(text)
         .replace(/\n\s*\n/g, "\n\n") // fix double spacing
-        .replace(/✔/g, "•")          // bullet styling
+        .replace(/✔/g, "•") // bullet styling
         .replace(/\*\*(.*?)\*\*/g, "$1"); // remove Markdown bold
       doc.text(cleaned, { lineGap: 4 });
       doc.moveDown(1);
@@ -164,6 +172,7 @@ export const exportHistory = async (req, res) => {
 
     doc.end();
   } catch (error) {
+    req.flash("error", `PDF Export Error: ${error}`);
     console.error("PDF Export Error:", error);
     res.status(500).send("Error exporting PDF");
   }
@@ -200,6 +209,7 @@ ${record.flashcards ? `## 📘 Flashcards\n${record.flashcards}` : ""}
     );
     res.send(content);
   } catch (error) {
+    req.flash("error", `Markdown Export Error: ${error}`);
     console.error("Markdown Export Error:", error);
     res.status(500).send("Error exporting Markdown");
   }
@@ -248,6 +258,7 @@ export const regenerateNotes = async (req, res) => {
       id: record._id,
     });
   } catch (err) {
+    req.flash("error", `Regenerate Error: ${err}`);
     console.error("Regenerate Error:", err);
     res.status(500).json({ error: "Failed to regenerate notes" });
   }

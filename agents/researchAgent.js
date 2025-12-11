@@ -1,6 +1,8 @@
 import fetch from "node-fetch";
-import dotenv from "dotenv";
-dotenv.config();
+if(process.env.NODE_ENV != "production"){
+   await import ('dotenv/config');
+}
+
 
 export async function researchAgent(topic, model = "gemini-2.5-flash") {
   const API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
