@@ -178,7 +178,7 @@ export const exportHistory = async (req, res) => {
   }
 };
 
-// NEW FEATURE: Download as Markdown
+//Download as Markdown
 export const exportMarkdown = async (req, res) => {
   try {
     const record = await History.findOne({
