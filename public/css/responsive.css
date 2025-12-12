@@ -6,140 +6,164 @@
    ========================================= */
 
 @media (max-width: 768px) {
+  /* --- SIDEBAR & LAYOUT --- */
+  .sidebar {
+    transform: translateX(-100%); /* Hide sidebar off-screen by default */
+    width: 260px; /* Ensure fixed width when open */
+    transition: transform 0.3s ease-in-out;
+    z-index: 50; /* Above everything */
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+  }
 
-    /* --- SIDEBAR & LAYOUT --- */
-    .sidebar {
-        transform: translateX(-100%); /* Hide sidebar off-screen by default */
-        width: 260px; /* Ensure fixed width when open */
-        transition: transform 0.3s ease-in-out;
-        z-index: 50; /* Above everything */
-        box-shadow: 5px 0 15px rgba(0,0,0,0.2);
-    }
+  /* Class added via JS when hamburger is clicked */
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
 
-    /* Class added via JS when hamburger is clicked */
-    .sidebar.mobile-open {
-        transform: translateX(0);
-    }
+  /* Sidebar Overlay (Backdrop) */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    display: none; /* Hidden by default */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(2px);
+  }
 
-    /* Sidebar Overlay (Backdrop) */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 40;
-        display: none; /* Hidden by default */
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        backdrop-filter: blur(2px);
-    }
+  .sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+  }
 
-    .sidebar-overlay.active {
-        display: block;
-        opacity: 1;
-    }
+  .main-content {
+    margin-left: 0 !important; /* Remove sidebar gap */
+    width: 100%;
+    padding-bottom: 80px; /* Extra space for bottom nav/input */
+  }
 
-    .main-content {
-        margin-left: 0 !important; /* Remove sidebar gap */
-        width: 100%;
-        padding-bottom: 80px; /* Extra space for bottom nav/input */
-    }
+  body.sidebar-collapsed .main-content {
+    margin-left: 0;
+  }
 
-    body.sidebar-collapsed .main-content {
-        margin-left: 0;
-    }
+  /* --- CHAT INPUT AREA (Floating Bottom) --- */
+  .input-area-container {
+    left: 0 !important; /* Stretch full width */
+    padding: 1rem;
+    bottom: 0;
+    background: var(--bg-body); /* Solid bg on mobile for readability */
+    border-top: 1px solid var(--border-color);
+  }
 
-    /* --- CHAT INPUT AREA (Floating Bottom) --- */
-    .input-area-container {
-        left: 0 !important; /* Stretch full width */
-        padding: 1rem;
-        bottom: 0;
-        background: var(--bg-body); /* Solid bg on mobile for readability */
-        border-top: 1px solid var(--border-color);
-    }
+  body.sidebar-collapsed .input-area-container {
+    left: 0;
+  }
 
-    body.sidebar-collapsed .input-area-container {
-        left: 0;
-    }
+  .input-box-wrapper {
+    border-radius: 1rem;
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+  }
 
-    .input-box-wrapper {
-        border-radius: 1rem;
-        box-shadow: none;
-        border: 1px solid var(--border-color);
-    }
+  /* --- CHAT BUBBLES --- */
+  .ai-msg,
+  .user-msg {
+    max-width: 95%; /* Wider bubbles on phone */
+    font-size: 0.95rem;
+  }
 
-    /* --- CHAT BUBBLES --- */
-    .ai-msg, .user-msg {
-        max-width: 95%; /* Wider bubbles on phone */
-        font-size: 0.95rem;
-    }
+  /* --- COMPARE PAGE (Diff View) --- */
+  .simple-container,
+  .diff-container {
+    flex-direction: column; /* Stack columns vertically */
+    gap: 15px;
+  }
 
-    /* --- COMPARE PAGE (Diff View) --- */
-    .simple-container, 
-    .diff-container {
-        flex-direction: column; /* Stack columns vertically */
-        gap: 15px;
-    }
+  .column-box,
+  .diff-column {
+    width: 100%;
+    overflow-x: auto; /* Scroll horizontal code blocks */
+  }
 
-    .column-box, 
-    .diff-column {
-        width: 100%;
-        overflow-x: auto; /* Scroll horizontal code blocks */
-    }
+  /* --- ACTION BUTTONS --- */
+  .action-buttons-row {
+    gap: 8px;
+    justify-content: flex-start; /* Align left */
+    overflow-x: auto; /* Allow scrolling if too many buttons */
+    padding-bottom: 5px;
+    flex-wrap: nowrap; /* Keep in one row scrollable or wrap? Let's wrap for better visibility */
+    flex-wrap: wrap;
+  }
 
-    /* --- ACTION BUTTONS --- */
-    .action-buttons-row {
-        gap: 8px;
-        justify-content: flex-start; /* Align left */
-        overflow-x: auto; /* Allow scrolling if too many buttons */
-        padding-bottom: 5px;
-        flex-wrap: nowrap; /* Keep in one row scrollable or wrap? Let's wrap for better visibility */
-        flex-wrap: wrap; 
-    }
+  .minimal-btn {
+    flex: 1 1 auto; /* Grow to fill space */
+    justify-content: center;
+    white-space: nowrap;
+    padding: 8px 12px;
+  }
 
-    .minimal-btn {
-        flex: 1 1 auto; /* Grow to fill space */
-        justify-content: center;
-        white-space: nowrap;
-        padding: 8px 12px;
-    }
+  /* --- DIAGRAMS --- */
+  #mindmapContainer {
+    height: 300px; /* Fixed height for mobile */
+  }
 
-    /* --- DIAGRAMS --- */
-    #mindmapContainer {
-        height: 300px; /* Fixed height for mobile */
-    }
-    
-    #diagramWrapper.fullscreen {
-        z-index: 99999; /* Ensure it covers everything */
-    }
+  #diagramWrapper.fullscreen {
+    z-index: 99999; /* Ensure it covers everything */
+  }
 
-    /* --- FONTS & INPUTS --- */
-    h1 { font-size: 1.5rem !important; }
-    h2 { font-size: 1.25rem !important; }
-    
-    /* Prevent iOS zoom on focus */
-    input, select, textarea {
-        font-size: 16px !important; 
-    }
+  /* --- FONTS & INPUTS --- */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Prevent iOS zoom on focus */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* --- SMALL MOBILE TWEAKS --- */
 @media (max-width: 480px) {
-    #msgInput{
-        width: 10px;
-    }
-    .send-btn-float {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .chat-input {
-        font-size: 0.9rem;
-    }
+  #msgInput {
+    width: 10px;
+  }
+  .send-btn-float {
+    width: 28px;
+    height: 28px;
+  }
 
-    .card {
-        padding: 1rem; /* Less padding on cards */
-    }
+  .chat-input {
+    font-size: 0.9rem;
+  }
+
+  .card {
+    padding: 1rem; /* Less padding on cards */
+  }
+
+  .text-chatgpt-subtle {
+    font-size: 11px;
+  }
+  .input-area-container {
+    padding-bottom: 2px !important;
+  }
+
+  .input-box-wrapper {
+    padding-bottom: 5px !important;
+  }
+
+  .border-chatgpt-border {
+    padding: 1rem !important;
+  }
+  .sidebar-footer {
+    padding-bottom: 1px !important;
+  }
 }

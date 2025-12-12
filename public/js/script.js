@@ -87,3 +87,51 @@ if (toggle) {
     }
   });
 }
+
+ document.addEventListener('DOMContentLoaded', () => {
+            let timeoutId = null;
+            const mentoraAiToggle = document.getElementById('mentora-ai-toggle');
+            const popupModal = document.getElementById('popup-modal');
+            const popupContent = document.getElementById('popup-content');
+            const currentYearSpan = document.getElementById('current-year');
+
+            // Set current year dynamically
+            currentYearSpan.textContent = new Date().getFullYear();
+
+            const hidePopup = () => {
+                popupModal.classList.remove('is-visible');
+                // Clear the timeout when user manually hides it
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            };
+
+            const showPopup = () => {
+                // Clear any existing timeout before showing
+                clearTimeout(timeoutId);
+
+                // Show the modal
+                popupModal.classList.add('is-visible');
+                
+                // Set new timeout for 10 seconds
+                timeoutId = setTimeout(() => {
+                    hidePopup();
+                }, 10000); // 10000 ms = 10 seconds
+            };
+            
+            mentoraAiToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (popupModal.classList.contains('is-visible')) {
+                    hidePopup();
+                } else {
+                    showPopup();
+                }
+            });
+
+            // 2. Hide the popup if the user clicks the backdrop (anywhere outside the content)
+            popupModal.addEventListener('click', (e) => {
+                // Check if the click target is the modal container itself, not the content inside
+                if (e.target === popupModal) {
+                    hidePopup();
+                }
+            });
+        });
