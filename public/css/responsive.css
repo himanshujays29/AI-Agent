@@ -127,6 +127,9 @@
 
 /* --- SMALL MOBILE TWEAKS --- */
 @media (max-width: 480px) {
+    #msgInput{
+        width: 10px;
+    }
     .send-btn-float {
         width: 28px;
         height: 28px;
