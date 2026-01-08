@@ -156,7 +156,7 @@ body.dark a:hover {
 
 /* When collapsed */
 .sidebar.collapsed {
-  width: 64px;
+  width: 75px;
 }
 body.sidebar-collapsed .main-content {
   margin-left: 64px;

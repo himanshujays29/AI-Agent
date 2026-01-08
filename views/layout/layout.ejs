@@ -217,7 +217,7 @@
             </div>
           </div>
 
-          <footer class="mentora-footer shadow-lg mt-2">
+          <footer class="mentora-footer shadow-lg mt-2" id="mentora-footer">
             <div class="max-w-3xl mx-auto flex flex-col items-center">
               <!-- Project Name - Now the clickable trigger -->
               <h3
@@ -353,6 +353,7 @@
       const hidechat = document.getElementById("hidechat");
       const hidehistory = document.getElementById("hidehistory");
       const hidedbtn = document.getElementById("hidedbtn");
+      const mentoraFooter = document.getElementById("mentora-footer");
 
       if (sidebarCollapseBtn && sidebar) {
         sidebarCollapseBtn.addEventListener("click", () => {
@@ -361,6 +362,7 @@
           hidechat.classList.toggle("hide");
           hidehistory.classList.toggle("hide");
           hidedbtn.classList.toggle("hide");
+          mentoraFooter.classList.toggle("hide");
 
 
           const icon = sidebarCollapseBtn.querySelector("i");
